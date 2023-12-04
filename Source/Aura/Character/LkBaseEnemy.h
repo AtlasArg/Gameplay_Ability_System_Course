@@ -4,14 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "LkCharacterBase.h"
+#include "Aura/Interaction/LKEnemyInterface.h"
 #include "LkBaseEnemy.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class AURA_API ALkBaseEnemy : public ALkCharacterBase
+class AURA_API ALkBaseEnemy : public ALkCharacterBase, public ILKEnemyInterface
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bHighlighted = false;
 };
