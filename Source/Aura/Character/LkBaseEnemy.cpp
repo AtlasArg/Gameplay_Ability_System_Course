@@ -16,6 +16,7 @@ ALkBaseEnemy::ALkBaseEnemy()
 	// TODO: Check if for LK we need this instead
 	//AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+
 	AttributeSet = CreateDefaultSubobject<ULKAttributeSet>("AttributeSet");
 }
 
@@ -31,5 +32,12 @@ void ALkBaseEnemy::UnHighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
+}
+
+void ALkBaseEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+	check(AbilitySystemComponent);
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 

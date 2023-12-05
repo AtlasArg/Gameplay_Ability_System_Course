@@ -16,8 +16,12 @@ class AURA_API ALkPlayerCharacter : public ALkCharacterBase
 
 public:
 	ALkPlayerCharacter();
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Character settings")
 	FRotator RotationRate = FRotator(0.f, 400.f, 0.f);
+
+	void InitAbilityActorInfo();
 };
