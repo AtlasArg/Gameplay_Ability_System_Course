@@ -13,9 +13,6 @@ ALkBaseEnemy::ALkBaseEnemy()
 
 	AbilitySystemComponent = CreateDefaultSubobject<ULKAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-	// TODO: Check if for LK we need this instead
-	//AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	AttributeSet = CreateDefaultSubobject<ULKAttributeSet>("AttributeSet");
 }
 

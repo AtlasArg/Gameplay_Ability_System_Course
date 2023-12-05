@@ -3,37 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
-#include "LkCharacterBase.generated.h"
+#include "LKPlayerState.generated.h"
 
 class UAbilitySystemComponent;
 class UAttributeSet;
 
-
-UCLASS(Abstract)
-class AURA_API ALkCharacterBase : public ACharacter, public IAbilitySystemInterface
+UCLASS()
+class AURA_API ALKPlayerState : public APlayerState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
-public:
-	ALkCharacterBase();
+public: 
+	ALKPlayerState();
 
 	// Inherited via IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	UAttributeSet* GetAttributeSet() const;
-
+	UAttributeSet* GetAttributeSet() const { return AttributeSet;  };
+	
 protected:
-	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere, Category="Combat")
-	TObjectPtr<USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystem")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere, Category = "AbilitySystem")
 	TObjectPtr<UAttributeSet> AttributeSet;
-	
+
 };

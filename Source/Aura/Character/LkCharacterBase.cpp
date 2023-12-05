@@ -17,3 +17,13 @@ void ALkCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+UAbilitySystemComponent* ALkCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+UAttributeSet* ALkCharacterBase::GetAttributeSet() const
+{
+	return AttributeSet;
+}

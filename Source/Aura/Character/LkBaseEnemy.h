@@ -16,9 +16,8 @@ class AURA_API ALkBaseEnemy : public ALkCharacterBase, public ILKEnemyInterface
 	GENERATED_BODY()
 	
 public:
+	ALkBaseEnemy();
+
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bHighlighted = false;
 };
