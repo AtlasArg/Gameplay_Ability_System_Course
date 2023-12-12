@@ -7,6 +7,10 @@
 #include "LKHUD.generated.h"
 
 class ULKUserWidget;
+class ULKOverlayWidgetController;
+struct FWidgetControllerParams;
+class UAbilitySystemComponent;
+class UAttributeSet;
 
 UCLASS()
 class AURA_API ALKHUD : public AHUD
@@ -17,12 +21,18 @@ public:
 	UPROPERTY()
 	TObjectPtr<ULKUserWidget> OverlayWidget;
 
-protected:
+	ULKOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
-	virtual void BeginPlay() override;
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
 private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ULKUserWidget> OverlayWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<ULKOverlayWidgetController> OverlayWidgetController;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ULKOverlayWidgetController> OverlayWidgetControllerClass;
 };

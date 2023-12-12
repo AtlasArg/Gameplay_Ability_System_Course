@@ -6,6 +6,8 @@
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "Aura/AbilitySystem/LKAttributeSet.h"
 #include "Aura/Player/LKPlayerState.h"
+#include "Aura/Player/LKPlayerController.h"
+#include "Aura/UI/HUD/LKHUD.h"
 
 ALkPlayerCharacter::ALkPlayerCharacter()
 {
@@ -42,4 +44,14 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 	LKPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(LKPlayerState, this);
 	AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
 	AttributeSet = LKPlayerState->GetAttributeSet();
+
+	ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(GetController());
+	if (LKPlayerController != nullptr)
+	{
+		ALKHUD* LKHUD = Cast<ALKHUD>(LKPlayerController->GetHUD());
+		if (LKHUD != nullptr)
+		{
+			LKHUD->InitOverlay(LKPlayerController, LKPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	}
 }

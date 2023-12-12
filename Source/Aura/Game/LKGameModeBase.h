@@ -13,5 +13,4 @@ UCLASS()
 class AURA_API ALKGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 };
