@@ -13,8 +13,6 @@ void ULKOverlayWidgetController::BroadcastInitialValues()
 
 	OnManaChanged.Broadcast(LKAttributeSet->GetMana());
 	OnMaxManaChanged.Broadcast(LKAttributeSet->GetMaxMana());
-
-	
 }
 
 void ULKOverlayWidgetController::BindCallbacksToDependencies()
@@ -22,6 +20,9 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddUObject(this, &ULKOverlayWidgetController::HealthChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ULKOverlayWidgetController::MaxHealthChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::ManaChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::MaxManaChanged);
 }
 
 void ULKOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
@@ -32,4 +33,14 @@ void ULKOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Dat
 void ULKOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
 {
 	OnMaxHealthChanged.Broadcast(Data.NewValue);
+}
+
+void ULKOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
+{
+	OnManaChanged.Broadcast(Data.NewValue);
+}
+
+void ULKOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
+{
+	OnMaxManaChanged.Broadcast(Data.NewValue);
 }

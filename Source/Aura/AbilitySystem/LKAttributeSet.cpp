@@ -10,7 +10,7 @@ ULKAttributeSet::ULKAttributeSet()
 	InitHealth(50.0f);
 	InitMaxHealth(100.0f);
 	InitMana(50.0f);
-	InitMaxMana(50.0f);
+	InitMaxMana(100.0f);
 }
 
 void ULKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

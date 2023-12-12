@@ -31,6 +31,7 @@ void ALKEffectActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		const ULKAttributeSet* AttributeSet = Cast<ULKAttributeSet>(ASCInterface->GetAbilitySystemComponent()->GetAttributeSet(ULKAttributeSet::StaticClass()));
 		ULKAttributeSet* MutableAttributeSet = const_cast<ULKAttributeSet*>(AttributeSet);
 		MutableAttributeSet->SetHealth(AttributeSet->GetHealth() + 25.f);
+		MutableAttributeSet->SetMana(AttributeSet->GetMana() - 25.f);
 		Destroy();
 	}
 }
