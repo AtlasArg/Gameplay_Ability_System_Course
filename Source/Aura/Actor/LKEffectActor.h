@@ -6,8 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LKEffectActor.generated.h"
 
-class USphereComponent;
-class UStaticMeshComponent;
+class UGameplayEffect;
 
 UCLASS()
 class AURA_API ALKEffectActor : public AActor
@@ -17,20 +16,21 @@ class AURA_API ALKEffectActor : public AActor
 public:	
 	ALKEffectActor();
 
-	UFUNCTION()
+	/*UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent,AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	virtual void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);*/
 
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UPROPERTY(Visibleanywhere)
-	TObjectPtr<USphereComponent> Sphere;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Applied Effects")
+	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;
 
-	UPROPERTY(Visibleanywhere)
-	TObjectPtr<UStaticMeshComponent> Mesh;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	TSubclassOf<UGameplayEffect> DurationGameplayEffectClass;
+	
+	UFUNCTION(BlueprintCallable)
+	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 };
