@@ -23,5 +23,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Character settings")
 	FRotator RotationRate = FRotator(0.f, 400.f, 0.f);
 
-	void InitAbilityActorInfo();
+	virtual void InitAbilityActorInfo() override;
 };

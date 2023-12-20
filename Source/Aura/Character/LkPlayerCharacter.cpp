@@ -42,6 +42,8 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
 	check(LKPlayerState);
 	LKPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(LKPlayerState, this);
+	Cast<ULKAbilitySystemComponent>(LKPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
+
 	AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
 	AttributeSet = LKPlayerState->GetAttributeSet();
 

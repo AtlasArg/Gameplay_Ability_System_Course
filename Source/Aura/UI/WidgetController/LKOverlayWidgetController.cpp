@@ -3,6 +3,7 @@
 
 #include "LKOverlayWidgetController.h"
 #include "Aura/AbilitySystem/LKAttributeSet.h"
+#include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 
 void ULKOverlayWidgetController::BroadcastInitialValues()
 {
@@ -23,6 +24,21 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::ManaChanged);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::MaxManaChanged);
+
+	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->OnEffectAssetTags.AddLambda(
+		[this](const FGameplayTagContainer& AssetTags)
+		{
+			for (const FGameplayTag& Tag: AssetTags)
+			{
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				if (Tag.MatchesTag(MessageTag))
+				{
+					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+					MessageWidgetRow.Broadcast(*Row);
+				}
+			}
+		}
+	);
 }
 
 void ULKOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const

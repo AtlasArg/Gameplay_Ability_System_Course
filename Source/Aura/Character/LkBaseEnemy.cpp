@@ -37,7 +37,12 @@ void ALkBaseEnemy::UnHighlightActor()
 void ALkBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	check(AbilitySystemComponent);
+	InitAbilityActorInfo();
+}
+
+void ALkBaseEnemy::InitAbilityActorInfo()
+{
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }
 

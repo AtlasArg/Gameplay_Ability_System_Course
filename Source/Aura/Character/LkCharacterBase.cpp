@@ -18,6 +18,11 @@ void ALkCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ALkCharacterBase::InitAbilityActorInfo()
+{
+
+}
+
 UAbilitySystemComponent* ALkCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
