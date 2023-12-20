@@ -19,16 +19,34 @@ void ULKOverlayWidgetController::BroadcastInitialValues()
 void ULKOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddUObject(this, &ULKOverlayWidgetController::HealthChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ULKOverlayWidgetController::MaxHealthChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnHealthChanged.Broadcast(Data.NewValue);
+		}
+	);
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnMaxHealthChanged.Broadcast(Data.NewValue);
+		}
+	);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::ManaChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxManaAttribute()).AddUObject(this, &ULKOverlayWidgetController::MaxManaChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnManaChanged.Broadcast(Data.NewValue);
+		}
+	);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnManaChanged.Broadcast(Data.NewValue);
+		}
+	);
 
 	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->OnEffectAssetTags.AddLambda(
 		[this](const FGameplayTagContainer& AssetTags)
 		{
-			for (const FGameplayTag& Tag: AssetTags)
+			for (const FGameplayTag& Tag : AssetTags)
 			{
 				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
 				if (Tag.MatchesTag(MessageTag))
@@ -39,24 +57,4 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		}
 	);
-}
-
-void ULKOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void ULKOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthChanged.Broadcast(Data.NewValue);
-}
-
-void ULKOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnManaChanged.Broadcast(Data.NewValue);
-}
-
-void ULKOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxManaChanged.Broadcast(Data.NewValue);
 }
