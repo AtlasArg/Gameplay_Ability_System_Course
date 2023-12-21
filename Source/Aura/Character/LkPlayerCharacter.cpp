@@ -56,4 +56,6 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 			LKHUD->InitOverlay(LKPlayerController, LKPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+
+	InitializeDefaultAttributes();
 }
