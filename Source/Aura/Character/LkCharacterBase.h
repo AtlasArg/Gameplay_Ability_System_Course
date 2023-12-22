@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Aura/Interaction/LKCombatInterface.h"
 #include "LkCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -13,7 +14,7 @@ class UGameplayEffect;
 
 
 UCLASS(Abstract)
-class AURA_API ALkCharacterBase : public ACharacter, public IAbilitySystemInterface
+class AURA_API ALkCharacterBase : public ACharacter, public IAbilitySystemInterface, public ILKCombatInterface
 {
 	GENERATED_BODY()
 
@@ -44,6 +45,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultSecondaryAttributes;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
 
 	void InitializeDefaultAttributes() const;
 

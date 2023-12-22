@@ -10,8 +10,7 @@
 
 ULKAttributeSet::ULKAttributeSet()
 {
-	InitHealth(10.0f);
-	InitMana(10.0f);
+
 }
 
 void ULKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

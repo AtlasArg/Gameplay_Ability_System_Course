@@ -37,6 +37,13 @@ void ALkPlayerCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 ALkPlayerCharacter::GetPlayerLevel()
+{
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->GetPlayerLevel();
+}
+
 void ALkPlayerCharacter::InitAbilityActorInfo()
 {
 	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
