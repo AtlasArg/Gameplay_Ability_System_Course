@@ -8,6 +8,7 @@
 
 class ULKUserWidget;
 class ULKOverlayWidgetController;
+class ULKAttributeMenuWidgetController;
 struct FWidgetControllerParams;
 class UAbilitySystemComponent;
 class UAttributeSet;
@@ -23,6 +24,8 @@ public:
 
 	ULKOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
+	ULKAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams);
+
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
 private:
@@ -35,4 +38,10 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ULKOverlayWidgetController> OverlayWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<ULKAttributeMenuWidgetController> AttributeMenuWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ULKAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
 };

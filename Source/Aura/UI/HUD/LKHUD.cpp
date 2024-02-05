@@ -4,6 +4,7 @@
 #include "LKHUD.h"
 #include "Aura/UI/Widget/LKUserWidget.h"
 #include "Aura/UI/WidgetController/LKOverlayWidgetController.h"
+#include "Aura/UI/WidgetController/LKAttributeMenuWidgetController.h"
 
 ULKOverlayWidgetController* ALKHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -15,6 +16,17 @@ ULKOverlayWidgetController* ALKHUD::GetOverlayWidgetController(const FWidgetCont
 	}
 
 	return OverlayWidgetController;
+}
+
+ULKAttributeMenuWidgetController* ALKHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (AttributeMenuWidgetController == nullptr)
+	{
+		AttributeMenuWidgetController = NewObject<ULKAttributeMenuWidgetController>(this, AttributeMenuWidgetControllerClass);
+		AttributeMenuWidgetController->SetWidgetControllerParams(WCParams);
+		AttributeMenuWidgetController->BindCallbacksToDependencies();
+	}
+	return AttributeMenuWidgetController;
 }
 
 void ALKHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
