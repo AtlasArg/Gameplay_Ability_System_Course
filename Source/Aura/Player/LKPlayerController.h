@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "LKPlayerController.generated.h"
 
 class UInputMappingContext;
 class UInputAction;
 class ILKEnemyInterface;
+class ULKInputConfig;
 struct FInputActionValue;
 
 UCLASS()
@@ -38,4 +40,11 @@ private:
 
 	ILKEnemyInterface* LastActor;
 	ILKEnemyInterface* ThisActor;
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<ULKInputConfig> InputConfig;
 };

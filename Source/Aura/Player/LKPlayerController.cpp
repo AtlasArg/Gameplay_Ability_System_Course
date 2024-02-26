@@ -3,7 +3,8 @@
 
 #include "LKPlayerController.h"
 #include "EnhancedInputSubsystems.h"
-#include "EnhancedInputComponent.h"
+#include "Aura/Input/LKInputComponent.h"
+#include "Aura/Input/LKInputConfig.h"
 #include "Aura/Interaction/LKEnemyInterface.h"
 
 ALKPlayerController::ALKPlayerController()
@@ -42,9 +43,9 @@ void ALKPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALKPlayerController::Move);
-	
+	ULKInputComponent* LKInputComponent = CastChecked<ULKInputComponent>(InputComponent);
+	LKInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALKPlayerController::Move);
+	LKInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void ALKPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -95,4 +96,19 @@ void ALKPlayerController::CursorTrace()
 		}
 	}
 	
+}
+
+void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+
+}
+
+void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+
+}
+
+void ALKPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+
 }

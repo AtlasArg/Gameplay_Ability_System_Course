@@ -3,7 +3,7 @@
 
 #include "LkCharacterBase.h"
 #include "AbilitySystemComponent.h"
-
+#include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 
 ALkCharacterBase::ALkCharacterBase()
 {
@@ -39,6 +39,17 @@ void ALkCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEf
 	ContextHandle.AddSourceObject(this);
 	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), GetAbilitySystemComponent());
+}
+
+void ALkCharacterBase::AddCharacterAbilities()
+{
+	ULKAbilitySystemComponent* ASC = CastChecked<ULKAbilitySystemComponent>(AbilitySystemComponent);
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	ASC->AddCharacterAbilites(StartupAbilities); 
 }
 
 UAbilitySystemComponent* ALkCharacterBase::GetAbilitySystemComponent() const
