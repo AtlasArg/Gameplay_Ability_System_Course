@@ -22,6 +22,12 @@ public:
 	UFUNCTION()
 	void AddCharacterAbilites(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 
+	UFUNCTION()
+	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+
+	UFUNCTION()
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
+
 protected:
 
 	void EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);

@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 class ILKEnemyInterface;
 class ULKInputConfig;
+class ULKAbilitySystemComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -47,4 +48,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<ULKInputConfig> InputConfig;
+
+	/*UPROPERTY(EditDefaultsOnly, Category = "Input")*/
+	TObjectPtr<ULKAbilitySystemComponent> AbilitySystemComponent;
+
+	ULKAbilitySystemComponent* GetASC();
 };

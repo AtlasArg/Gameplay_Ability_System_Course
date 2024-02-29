@@ -7,6 +7,9 @@
 #include "Aura/Input/LKInputConfig.h"
 #include "Aura/Interaction/LKEnemyInterface.h"
 
+#include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
 ALKPlayerController::ALKPlayerController()
 {
 	// TODO: this may not be needed for LK. cause its not multiplayer.
@@ -22,7 +25,7 @@ void ALKPlayerController::PlayerTick(float DeltaTime)
 void ALKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	check(PlayerContext);
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem != nullptr)
@@ -95,20 +98,36 @@ void ALKPlayerController::CursorTrace()
 			ThisActor->HighlightActor();
 		}
 	}
-	
+
 }
 
 void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-
+	//
 }
 
 void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-
+	if (GetASC() != nullptr)
+	{
+		GetASC()->AbilityInputTagReleased(InputTag);
+	}
 }
 
 void ALKPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	if (GetASC() != nullptr)
+	{
+		GetASC()->AbilityInputTagHeld(InputTag);
+	}
+}
 
+ULKAbilitySystemComponent* ALKPlayerController::GetASC()
+{
+	if (AbilitySystemComponent = nullptr)
+	{
+		AbilitySystemComponent = Cast<ULKAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+
+	return AbilitySystemComponent;
 }
