@@ -12,6 +12,7 @@ class UInputAction;
 class ILKEnemyInterface;
 class ULKInputConfig;
 class ULKAbilitySystemComponent;
+class USplineComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -53,4 +54,16 @@ private:
 	TObjectPtr<ULKAbilitySystemComponent> AbilitySystemComponent;
 
 	ULKAbilitySystemComponent* GetASC();
+
+	FVector CachedDestination = FVector::ZeroVector;
+	float FollowTime = 0.f;
+	float ShortPressThreashold = 0.5f;
+	bool bAutoRunning = false;
+	bool bTargeting = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AutoRunAccpetanceRadius = 50.f;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr <USplineComponent> Spline;
 };
