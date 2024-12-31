@@ -8,7 +8,8 @@
 #include "Aura/Interaction/LKEnemyInterface.h"
 #include "Aura/LKGameplayTags.h"
 #include "Components/SplineComponent.h"
-
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
 
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -17,6 +18,7 @@ ALKPlayerController::ALKPlayerController()
 {
 	// TODO: this may not be needed for LK. cause its not multiplayer.
 	bReplicates = true;
+
 	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
@@ -24,6 +26,8 @@ void ALKPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 	CursorTrace();
+
+	AutoRun();
 }
 
 void ALKPlayerController::BeginPlay()
@@ -73,7 +77,6 @@ void ALKPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void ALKPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 	if (!CursorHit.bBlockingHit)
 	{
@@ -83,26 +86,39 @@ void ALKPlayerController::CursorTrace()
 	LastActor = ThisActor;
 	ThisActor = Cast<ILKEnemyInterface>(CursorHit.GetActor());
 
-	if (LastActor == nullptr) // && IsValid(ThisActor))
+	if (LastActor != ThisActor)
 	{
-		if (ThisActor != nullptr)
+		if (LastActor)
+		{
+			LastActor->UnHighlightActor();
+		}
+		if (ThisActor)
 		{
 			ThisActor->HighlightActor();
 		}
 	}
-	else
+}
+
+void ALKPlayerController::AutoRun()
+{
+	if (!bAutoRunning)
 	{
-		if (ThisActor == nullptr)
-		{
-			LastActor->UnHighlightActor();
-		}
-		else if (LastActor != ThisActor)
-		{
-			LastActor->UnHighlightActor();
-			ThisActor->HighlightActor();
-		}
+		return;
 	}
 
+	APawn* ControlledPawn = GetPawn();
+	if (IsValid(ControlledPawn))
+	{
+		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
+		ControlledPawn->AddMovementInput(Direction);
+
+		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+		if (DistanceToDestination <= AutoRunAccpetanceRadius)
+		{
+			bAutoRunning = false;
+		}
+	}
 }
 
 void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
@@ -116,9 +132,45 @@ void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetASC() != nullptr)
+	if (!InputTag.MatchesTagExact(FLKGameplayTags::Get().InputTag_LMB))
 	{
-		GetASC()->AbilityInputTagReleased(InputTag);
+		if (GetASC())
+		{
+			GetASC()->AbilityInputTagReleased(InputTag);
+		}
+
+		return;
+	}
+
+	if (bTargeting)
+	{
+		if (GetASC())
+		{
+			GetASC()->AbilityInputTagReleased(InputTag);
+		}
+	}
+	else
+	{
+		const APawn* ControlledPawn = GetPawn();
+		if (FollowTime <= ShortPressThreashold && IsValid(ControlledPawn))
+		{
+			UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination);
+			if (NavPath)
+			{
+				Spline->ClearSplinePoints();
+				for (const FVector& PointLoc : NavPath->PathPoints)
+				{
+					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+
+					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+				}
+
+				bAutoRunning = true;
+			}
+		}
+
+		FollowTime = 0.f;
+		bTargeting = false;
 	}
 }
 
@@ -144,10 +196,9 @@ void ALKPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	else
 	{
 		FollowTime += GetWorld()->GetDeltaSeconds();
-		FHitResult Hit;
-		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		if (CursorHit.bBlockingHit)
 		{
-			CachedDestination = Hit.ImpactPoint; // we can use location also.
+			CachedDestination = CursorHit.ImpactPoint; // we can use location also.
 		}
 
 		if (APawn* ControlledPawn = GetPawn())

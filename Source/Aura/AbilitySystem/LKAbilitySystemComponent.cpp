@@ -7,8 +7,7 @@
 
 void ULKAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &ULKAbilitySystemComponent::EffectApplied);
-
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &ULKAbilitySystemComponent::ClientEffectApplied);
 }
 
 void ULKAbilitySystemComponent::AddCharacterAbilites(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
@@ -25,7 +24,7 @@ void ULKAbilitySystemComponent::AddCharacterAbilites(const TArray<TSubclassOf<UG
 	}
 }
 
-void ULKAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
+void ULKAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
 	const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 	FGameplayTagContainer TagContainer;
