@@ -123,7 +123,8 @@ void ALKPlayerController::AutoRun()
 
 void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	if (InputTag.MatchesTagExact(FLKGameplayTags::Get().InputTag_LMB))
+	FGameplayTag testTag = FLKGameplayTags::Get().InputTag_LMB;
+	if (InputTag.MatchesTagExact(testTag)) //FLKGameplayTags::Get().InputTag_LMB))
 	{
 		bTargeting = ThisActor ? true : false;
 		bAutoRunning = false;
@@ -132,6 +133,7 @@ void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	FGameplayTag testTag = FLKGameplayTags::Get().InputTag_LMB;
 	if (!InputTag.MatchesTagExact(FLKGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC())
@@ -211,7 +213,7 @@ void ALKPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 
 ULKAbilitySystemComponent* ALKPlayerController::GetASC()
 {
-	if (AbilitySystemComponent = nullptr)
+	if (!IsValid(AbilitySystemComponent))// = nullptr)
 	{
 		AbilitySystemComponent = Cast<ULKAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}

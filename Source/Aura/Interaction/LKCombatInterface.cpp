@@ -8,3 +8,8 @@ int32 ILKCombatInterface::GetPlayerLevel()
 {
 	return 0;
 }
+
+FVector ILKCombatInterface::GetCombatSocketLocation()
+{
+	return FVector();
+}

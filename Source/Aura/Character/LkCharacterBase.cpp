@@ -19,6 +19,12 @@ void ALkCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+FVector ALkCharacterBase::GetCombatSocketLocation()
+{
+	check(Weapon);
+	return Weapon->GetSocketLocation(WeaponTipSocketName);
+}
+
 void ALkCharacterBase::InitAbilityActorInfo()
 {
 

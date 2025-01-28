@@ -24,4 +24,7 @@ class AURA_API ILKCombatInterface
 public:
 
 	virtual int32 GetPlayerLevel();
+
+	virtual FVector GetCombatSocketLocation();
+
 };
