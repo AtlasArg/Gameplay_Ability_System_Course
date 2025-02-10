@@ -4,10 +4,21 @@
 #include "LkCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Aura/Aura.h"
+
 
 ALkCharacterBase::ALkCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Projectile, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
+
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	//TODO: Check, not sure about this...

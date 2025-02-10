@@ -120,6 +120,7 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0, GetMaxHealth()));
+		UE_LOG(LogTemp, Warning, TEXT("Changed health on %s, health: %f"), *Props.TargetCharacter->GetName(), GetHealth());
 	}
 
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())

@@ -3,7 +3,7 @@
 
 #include "LKAssetManager.h"
 #include "LKGameplayTags.h"
-
+#include "AbilitySystemGlobals.h"
 
 ULKAssetManager& ULKAssetManager::Get()
 {
@@ -16,4 +16,5 @@ void ULKAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();
 	FLKGameplayTags::InitializeNativeGameplayTags();
+	UAbilitySystemGlobals::Get().InitGlobalData();
 }

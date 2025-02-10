@@ -4,25 +4,38 @@
 #include "LKProjectileSpell.h"
 #include "Aura/Actor/LKProjectile.h"
 #include "Aura/Interaction/LKCombatInterface.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 
 void ULKProjectileSpell::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// TODO: this is no needed in LK
-	if (HasAuthority(&ActivationInfo))
+
+}
+
+void ULKProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
+{
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
+	if (!bIsServer) { return; }
+
+	ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(GetAvatarActorFromActorInfo());
+	if (CombatInterface)
 	{
-		ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(GetAvatarActorFromActorInfo());
-		if (CombatInterface)
-		{
-			const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
-			FTransform SpawnTransform;
-			SpawnTransform.SetLocation(SocketLocation);
+		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		Rotation.Pitch = 0.f;
 
-			ALKProjectile* Projectile = GetWorld()->SpawnActorDeferred<ALKProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Rotation.Quaternion());
 
+		ALKProjectile* Projectile = GetWorld()->SpawnActorDeferred<ALKProjectile>(ProjectileClass, SpawnTransform, GetOwningActorFromActorInfo(), Cast<APawn>(GetOwningActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-			Projectile->FinishSpawning(SpawnTransform);
-		}
+		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+		Projectile->DamageEffectSpecHandle = SpecHandle;
+
+		Projectile->FinishSpawning(SpawnTransform);
 	}
 }

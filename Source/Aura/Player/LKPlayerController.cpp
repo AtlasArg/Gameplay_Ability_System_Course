@@ -56,6 +56,8 @@ void ALKPlayerController::SetupInputComponent()
 
 	ULKInputComponent* LKInputComponent = CastChecked<ULKInputComponent>(InputComponent);
 	LKInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ALKPlayerController::Move);
+	LKInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &ALKPlayerController::ShiftPressed);
+	LKInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &ALKPlayerController::ShiftReleased);
 	LKInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -123,8 +125,7 @@ void ALKPlayerController::AutoRun()
 
 void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	FGameplayTag testTag = FLKGameplayTags::Get().InputTag_LMB;
-	if (InputTag.MatchesTagExact(testTag)) //FLKGameplayTags::Get().InputTag_LMB))
+	if (InputTag.MatchesTagExact(FLKGameplayTags::Get().InputTag_LMB))
 	{
 		bTargeting = ThisActor ? true : false;
 		bAutoRunning = false;
@@ -133,7 +134,6 @@ void ALKPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	FGameplayTag testTag = FLKGameplayTags::Get().InputTag_LMB;
 	if (!InputTag.MatchesTagExact(FLKGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC())
@@ -144,14 +144,12 @@ void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		return;
 	}
 
-	if (bTargeting)
+	if (GetASC())
 	{
-		if (GetASC())
-		{
-			GetASC()->AbilityInputTagReleased(InputTag);
-		}
+		GetASC()->AbilityInputTagReleased(InputTag);
 	}
-	else
+
+	if (!bTargeting && !bShiftKeyDown)
 	{
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreashold && IsValid(ControlledPawn))
@@ -188,7 +186,7 @@ void ALKPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;
 	}
 
-	if (bTargeting)
+	if (bTargeting || bShiftKeyDown)
 	{
 		if (GetASC())
 		{

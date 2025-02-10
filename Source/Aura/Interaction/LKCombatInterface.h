@@ -7,7 +7,7 @@
 #include "LKCombatInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, BlueprintType)
 class ULKCombatInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -27,4 +27,6 @@ public:
 
 	virtual FVector GetCombatSocketLocation();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateFixingTarget(const FVector& Target);
 };
