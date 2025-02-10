@@ -7,6 +7,7 @@
 #include "Aura/AbilitySystem/LKAttributeSet.h"
 #include "Aura/UI/Widget/LKUserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
 
 
 ALkBaseEnemy::ALkBaseEnemy()
@@ -78,5 +79,10 @@ void ALkBaseEnemy::InitAbilityActorInfo()
 	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	InitializeDefaultAttributes();
+}
+
+void ALkBaseEnemy::InitializeDefaultAttributes() const
+{
+	ULKAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }
 
