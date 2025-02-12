@@ -14,6 +14,7 @@ class ULKInputConfig;
 class ULKAbilitySystemComponent;
 class USplineComponent;
 struct FInputActionValue;
+class ULKDamageTextComponent;
 
 UCLASS()
 class AURA_API ALKPlayerController : public APlayerController
@@ -24,7 +25,8 @@ public:
 	ALKPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
 
-
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float Damage, ACharacter* TargetCharacter);
 protected:
 	virtual void BeginPlay() override;
 
@@ -74,4 +76,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr <USplineComponent> Spline;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ULKDamageTextComponent> DamageTextComponentClass;
 };

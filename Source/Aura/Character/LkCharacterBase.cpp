@@ -69,6 +69,23 @@ void ALkCharacterBase::AddCharacterAbilities()
 	ASC->AddCharacterAbilites(StartupAbilities); 
 }
 
+void ALkCharacterBase::Dissolve()
+{
+	if (IsValid(DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicMatInst);
+		StartDissolveTimeline(DynamicMatInst);
+	}
+
+	if (IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
+		Weapon->SetMaterial(0, DynamicMatInst);
+		StartWeaponDissolveTimeline(DynamicMatInst);
+	}
+}
+
 UAbilitySystemComponent* ALkCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
@@ -77,4 +94,31 @@ UAbilitySystemComponent* ALkCharacterBase::GetAbilitySystemComponent() const
 UAttributeSet* ALkCharacterBase::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+UAnimMontage* ALkCharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;
+}
+
+void ALkCharacterBase::Die()
+{
+	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	MulticastHandleDeath();
+}
+
+void ALkCharacterBase::MulticastHandleDeath_Implementation()
+{
+	Weapon->SetSimulatePhysics(true);
+	Weapon->SetEnableGravity(true);
+	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Dissolve();
 }

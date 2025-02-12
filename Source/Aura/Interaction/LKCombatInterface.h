@@ -13,9 +13,8 @@ class ULKCombatInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
+class UAnimMontage;
+
 class AURA_API ILKCombatInterface
 {
 	GENERATED_BODY()
@@ -29,4 +28,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateFixingTarget(const FVector& Target);
+
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UAnimMontage* GetHitReactMontage();
+
+	virtual void Die() = 0;
 };

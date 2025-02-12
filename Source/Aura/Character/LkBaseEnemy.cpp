@@ -8,6 +8,8 @@
 #include "Aura/UI/Widget/LKUserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
+#include "Aura/LKGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 ALkBaseEnemy::ALkBaseEnemy()
@@ -44,10 +46,18 @@ int32 ALkBaseEnemy::GetPlayerLevel()
 	return Level;
 }
 
+void ALkBaseEnemy::Die()
+{
+	SetLifeSpan(LifeSpan);
+	Super::Die();
+}
+
 void ALkBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitAbilityActorInfo();
+	ULKAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	ULKUserWidget* LKUSerWidget = Cast<ULKUserWidget>(HealthBar->GetUserWidgetObject());
 	if (IsValid(LKUSerWidget))
@@ -68,8 +78,23 @@ void ALkBaseEnemy::BeginPlay()
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
 			});
 
+		
+		AbilitySystemComponent->RegisterGameplayTagEvent(FLKGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this,
+			&ThisClass::HitReactTagChanged
+		);
+
 		OnHealthChanged.Broadcast(LKAttributeSet->GetHealth());
 		OnMaxHealthChanged.Broadcast(LKAttributeSet->GetMaxHealth());
+	}
+}
+
+void ALkBaseEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	if (bHitReacting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 	}
 }
 

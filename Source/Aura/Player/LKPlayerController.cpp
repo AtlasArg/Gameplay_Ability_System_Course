@@ -10,7 +10,8 @@
 #include "Components/SplineComponent.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
-
+#include "Aura/UI/Widget/LKDamageTextComponent.h"
+#include "GameFramework/Character.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
@@ -28,6 +29,18 @@ void ALKPlayerController::PlayerTick(float DeltaTime)
 	CursorTrace();
 
 	AutoRun();
+}
+
+void ALKPlayerController::ShowDamageNumber_Implementation(float Damage, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		ULKDamageTextComponent* DamageText = NewObject<ULKDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(Damage);
+	}
 }
 
 void ALKPlayerController::BeginPlay()

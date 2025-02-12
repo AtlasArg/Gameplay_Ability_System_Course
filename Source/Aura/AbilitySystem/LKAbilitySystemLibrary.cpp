@@ -71,3 +71,19 @@ void ULKAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	const FGameplayEffectSpecHandle VitalAttributeSpecHandle = ASC->MakeOutgoingSpec(ClassInfo->VitalAttributes, Level, VitalAttributesContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
 }
+
+void ULKAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC)
+{
+	ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (!IsValid(LKGameMode))
+	{
+		return;
+	}
+
+	UCharacterClassInfo* ClassInfo = LKGameMode->CharacterClassInfo;
+	for (TSubclassOf<UGameplayAbility> AbilityClass : ClassInfo->CommonAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		ASC->GiveAbility(AbilitySpec);
+	}
+}

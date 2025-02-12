@@ -6,8 +6,10 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
+#include "Kismet/GameplayStatics.h"
 #include "Aura/LKGameplayTags.h"
-
+#include "Aura/Interaction/LKCombatInterface.h"
+#include "Aura/Player/LKPlayerController.h"
 
 ULKAttributeSet::ULKAttributeSet()
 {
@@ -110,6 +112,7 @@ void ULKAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 }
 
 
+
 void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -126,6 +129,47 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(), 0, GetMaxMana()));
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+			const bool bFatal = NewHealth <= 0.f;
+			if (bFatal)
+			{
+				ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(Props.TargetAvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FLKGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+		}
+
+		ShowFloatingText(Props, LocalIncomingDamage);
+	}
+}
+
+void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damaage) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0));
+		if (IsValid(LKPlayerController))
+		{
+			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter);
+		}
 	}
 }
 

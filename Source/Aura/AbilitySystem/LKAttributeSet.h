@@ -140,6 +140,12 @@ public:
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(ULKAttributeSet, Mana);
 
+	/*
+	* Meta Attributes
+	*/
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(ULKAttributeSet, IncomingDamage);
 
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
@@ -192,4 +198,5 @@ public:
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	
+	void ShowFloatingText(const FEffectProperties& Props, float Damaage) const;
 };
