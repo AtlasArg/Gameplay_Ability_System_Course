@@ -45,15 +45,10 @@ ULKAttributeMenuWidgetController* ULKAbilitySystemLibrary::GetAttributeMenuWidge
 
 void ULKAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC)
 {
-	ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase> (UGameplayStatics::GetGameMode(WorldContextObject));
-	if (!IsValid(LKGameMode))
-	{
-		return;
-	}
-	
+
+	UCharacterClassInfo* ClassInfo = GetCharacterClassInfo(WorldContextObject);
 	AActor* AvatarActor = ASC->GetAvatarActor();
 
-	UCharacterClassInfo* ClassInfo = LKGameMode->CharacterClassInfo;
 	FCharacterClassDefaultInfo ClassDefaultInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
 
 	FGameplayEffectContextHandle PrimaryAttributesContextHandle = ASC->MakeEffectContext();
@@ -69,21 +64,26 @@ void ULKAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	FGameplayEffectContextHandle VitalAttributesContextHandle = ASC->MakeEffectContext();
 	VitalAttributesContextHandle.AddSourceObject(AvatarActor);
 	const FGameplayEffectSpecHandle VitalAttributeSpecHandle = ASC->MakeOutgoingSpec(ClassInfo->VitalAttributes, Level, VitalAttributesContextHandle);
-	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
+ 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
 }
 
 void ULKAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC)
 {
-	ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (!IsValid(LKGameMode))
-	{
-		return;
-	}
-
-	UCharacterClassInfo* ClassInfo = LKGameMode->CharacterClassInfo;
+	UCharacterClassInfo* ClassInfo = GetCharacterClassInfo(WorldContextObject);
 	for (TSubclassOf<UGameplayAbility> AbilityClass : ClassInfo->CommonAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
 		ASC->GiveAbility(AbilitySpec);
 	}
+}
+
+UCharacterClassInfo* ULKAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (!IsValid(LKGameMode))
+	{
+		return nullptr;
+	}
+
+	return LKGameMode->CharacterClassInfo;
 }
