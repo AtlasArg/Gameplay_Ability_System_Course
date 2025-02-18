@@ -8,6 +8,7 @@
 #include "Aura/UI/HUD/LKHUD.h"
 #include "Aura/Game/LKGameModeBase.h"
 #include "AbilitySystemComponent.h"
+#include "Aura/LKAbilityTypes.h"
 
 ULKOverlayWidgetController* ULKAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
 {
@@ -86,4 +87,40 @@ UCharacterClassInfo* ULKAbilitySystemLibrary::GetCharacterClassInfo(const UObjec
 	}
 
 	return LKGameMode->CharacterClassInfo;
+}
+
+bool ULKAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* AuraEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->IsBlockedHit();
+	}
+
+	return false;
+}
+
+bool ULKAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* AuraEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->IsCriticalHit();
+	}
+
+	return false;
+}
+
+void ULKAbilitySystemLibrary::SetIsBlockedHit(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetIsBlockedHit(bInIsBlockedHit);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
 }

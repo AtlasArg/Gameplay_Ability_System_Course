@@ -10,6 +10,7 @@
 #include "Aura/LKGameplayTags.h"
 #include "Aura/Interaction/LKCombatInterface.h"
 #include "Aura/Player/LKPlayerController.h"
+#include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
 
 ULKAttributeSet::ULKAttributeSet()
 {
@@ -157,18 +158,20 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			}
 		}
 
-		ShowFloatingText(Props, LocalIncomingDamage);
+		const bool bBlock = ULKAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+		const bool bCriticalHit = ULKAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+		ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
 	}
 }
 
-void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damaage) const
+void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damaage, bool bBlockedHit, bool bCriticalHit) const
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
 		ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0));
 		if (IsValid(LKPlayerController))
 		{
-			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter);
+			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}
 }
