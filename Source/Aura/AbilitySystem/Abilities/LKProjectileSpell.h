@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LKGameplayAbility.h"
+#include "LKDamageGameplayAbility.h"
 #include "LKProjectileSpell.generated.h"
 
 class ALKProjectile;
 class UGameplayEffect;
 
 UCLASS()
-class AURA_API ULKProjectileSpell : public ULKGameplayAbility
+class AURA_API ULKProjectileSpell : public ULKDamageGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -26,6 +26,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ALKProjectile> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 };

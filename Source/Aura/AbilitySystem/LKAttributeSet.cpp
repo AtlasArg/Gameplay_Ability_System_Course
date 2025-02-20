@@ -33,6 +33,12 @@ ULKAttributeSet::ULKAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ManaRegeneration, GetManaRegenerationAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxMana, GetMaxManaAttribute);
+
+	/* Resistance Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Arcane, GetArcaneResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Fire, GetFireResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Lightning, GetLightningResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Physical, GetPhysicalResistanceAttribute);
 }
 
 void ULKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,6 +63,13 @@ void ULKAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+
+	// Resistance Attributes
+
+	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, FireResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, LightningResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, ArcaneResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
 
 	// Vital attributes
 	DOREPLIFETIME_CONDITION_NOTIFY(ULKAttributeSet, Health, COND_None, REPNOTIFY_Always);
@@ -168,7 +181,7 @@ void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Dam
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(UGameplayStatics::GetPlayerController(Props.SourceCharacter, 0));
+		ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(Props.SourceCharacter->Controller);
 		if (IsValid(LKPlayerController))
 		{
 			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
@@ -257,3 +270,22 @@ void ULKAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) co
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ULKAttributeSet, MaxMana, OldMaxMana);
 }
 
+void ULKAttributeSet::OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULKAttributeSet, FireResistance, OldFireResistance);
+}
+
+void ULKAttributeSet::OnRep_LightningResistance(const FGameplayAttributeData& OldLightningResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULKAttributeSet, LightningResistance, OldLightningResistance);
+}
+
+void ULKAttributeSet::OnRep_ArcaneResistance(const FGameplayAttributeData& OldArcaneResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULKAttributeSet, ArcaneResistance, OldArcaneResistance);
+}
+
+void ULKAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULKAttributeSet, PhysicalResistance, OldPhysicalResistance);
+}

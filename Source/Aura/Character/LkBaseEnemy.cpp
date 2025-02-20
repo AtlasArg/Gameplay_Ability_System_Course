@@ -57,7 +57,10 @@ void ALkBaseEnemy::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitAbilityActorInfo();
-	ULKAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	if (HasAuthority())
+	{
+		ULKAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	}
 
 	ULKUserWidget* LKUSerWidget = Cast<ULKUserWidget>(HealthBar->GetUserWidgetObject());
 	if (IsValid(LKUSerWidget))
@@ -103,7 +106,10 @@ void ALkBaseEnemy::InitAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes();
+	if (HasAuthority())
+	{
+		InitializeDefaultAttributes();
+	}
 }
 
 void ALkBaseEnemy::InitializeDefaultAttributes() const
