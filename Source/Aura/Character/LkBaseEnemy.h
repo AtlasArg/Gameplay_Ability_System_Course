@@ -10,6 +10,8 @@
 #include "LkBaseEnemy.generated.h"
 
 class UWidgetComponent;
+class UBehaviorTree;
+class ALKSAIController;
 
 UCLASS()
 class AURA_API ALkBaseEnemy : public ALkCharacterBase, public ILKEnemyInterface
@@ -18,6 +20,7 @@ class AURA_API ALkBaseEnemy : public ALkCharacterBase, public ILKEnemyInterface
 	
 public:
 	ALkBaseEnemy();
+	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
@@ -43,7 +46,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
 
-	
+	UPROPERTY(EditAnywhere, Category = "AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<ALKSAIController> LKSAIController;
 
 protected:
 	virtual void BeginPlay() override;

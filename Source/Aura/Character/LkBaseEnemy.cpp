@@ -7,6 +7,9 @@
 #include "Aura/AbilitySystem/LKAttributeSet.h"
 #include "Aura/UI/Widget/LKUserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Aura/AI/LKSAIController.h"
 #include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
 #include "Aura/LKGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,9 +25,29 @@ ALkBaseEnemy::ALkBaseEnemy()
 	//AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Full);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
 	AttributeSet = CreateDefaultSubobject<ULKAttributeSet>("AttributeSet");
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void ALkBaseEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	LKSAIController = Cast<ALKSAIController>(NewController);
+	LKSAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	LKSAIController->RunBehaviorTree(BehaviorTree);
 }
 
 void ALkBaseEnemy::HighlightActor()

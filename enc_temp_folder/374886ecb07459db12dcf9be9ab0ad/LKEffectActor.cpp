@@ -43,7 +43,7 @@ void ALKEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamep
 		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
 	}
 
-	if (!bIsInfinite)
+	if (bDestroyOnEfectRemoval && EffectSpectHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Instant)
 	{
 		Destroy();
 	}
