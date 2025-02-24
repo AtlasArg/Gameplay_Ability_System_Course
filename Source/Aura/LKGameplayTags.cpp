@@ -29,6 +29,11 @@ void FLKGameplayTags::InitializeNativeGameplayTags()
 		FString("Increases Health")
 	);
 
+	GameplayTags.Attributes_Primary_Stamina = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Primary.Stamina"),
+		FString("How many levels we can play until get tired")
+	);
+
 	/*
 	 * Secondary Attributes
 	 */

@@ -21,7 +21,8 @@ ULKAttributeSet::ULKAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Intelligence, GetIntelligenceAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Resilience, GetResilienceAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Vigor, GetVigorAttribute);
-
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Vigor, GetStaminaAttribute);
+	
 	/* Secondary Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_Armor, GetArmorAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ArmorPenetration, GetArmorPenetrationAttribute);
@@ -91,6 +92,32 @@ void ULKAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxMana());
 	}
  }
+
+bool ULKAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	// Check if the effect is modifying health
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		float Amount = Data.EvaluatedData.Magnitude;
+
+		AActor* OwningActor = GetOwningActor();
+		ACharacter* CurrentCharacter = Cast<ACharacter>(OwningActor);
+
+		AController* Controller = CurrentCharacter->GetController();
+		ALKPlayerController* PC = Cast<ALKPlayerController>(Controller);
+
+		if (PC)
+		{
+			// Redirect the damage to the team health system
+			PC->ChangeTeamHealth(Amount);
+
+			// Prevent the original effect from applying damage to a single character
+			Data.EvaluatedData.Magnitude = 0.0f;
+		}
+	}
+
+	return true; // Return true to allow the GameplayEffect to continue execution
+}
 
 void ULKAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
 {

@@ -19,6 +19,9 @@ ALkPlayerCharacter::ALkPlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	AbilitySystemComponent = CreateDefaultSubobject<ULKAbilitySystemComponent>("AbilitySystemComponent");
+	AttributeSet = CreateDefaultSubobject<ULKAttributeSet>("AttributeSet");
 }
 
 void ALkPlayerCharacter::PossessedBy(AController* NewController)
@@ -40,20 +43,29 @@ void ALkPlayerCharacter::OnRep_PlayerState()
 
 int32 ALkPlayerCharacter::GetPlayerLevel()
 {
-	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
-	check(LKPlayerState);
-	return LKPlayerState->GetPlayerLevel();
+	return Level;
+	//ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	//check(LKPlayerState);
+	//return LKPlayerState->GetPlayerLevel();
+}
+
+void ALkPlayerCharacter::LevelUpCharacter()
+{
+	Level++;
 }
 
 void ALkPlayerCharacter::InitAbilityActorInfo()
 {
-	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
-	check(LKPlayerState);
-	LKPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(LKPlayerState, this);
-	Cast<ULKAbilitySystemComponent>(LKPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
+	/*ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);*/
 
-	AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
-	AttributeSet = LKPlayerState->GetAttributeSet();
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	//LKPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(LKPlayerState, this);
+	//Cast<ULKAbilitySystemComponent>(LKPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
+	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+
+	//AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
+	//AttributeSet = LKPlayerState->GetAttributeSet();
 
 	ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(GetController());
 	if (LKPlayerController != nullptr)
@@ -61,7 +73,8 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 		ALKHUD* LKHUD = Cast<ALKHUD>(LKPlayerController->GetHUD());
 		if (LKHUD != nullptr)
 		{
-			LKHUD->InitOverlay(LKPlayerController, LKPlayerState, AbilitySystemComponent, AttributeSet);
+			// TODO: gas fix
+			//LKHUD->InitOverlay(LKPlayerController, LKPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
 

@@ -19,6 +19,7 @@ struct FLKGameplayTags
 		FGameplayTag Attributes_Primary_Intelligence;
 		FGameplayTag Attributes_Primary_Resilience;
 		FGameplayTag Attributes_Primary_Vigor;
+		FGameplayTag Attributes_Primary_Stamina;
 
 		FGameplayTag Attributes_Secondary_Armor;
 		FGameplayTag Attributes_Secondary_ArmorPenetration;

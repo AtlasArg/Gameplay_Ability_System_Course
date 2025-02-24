@@ -15,6 +15,10 @@ class ULKAbilitySystemComponent;
 class USplineComponent;
 struct FInputActionValue;
 class ULKDamageTextComponent;
+class UAbilitySystemComponent;
+class UAttributeSet;
+class ALkCharacterBase;
+class ULKSTeamAttributeSet;
 
 UCLASS()
 class AURA_API ALKPlayerController : public APlayerController
@@ -27,10 +31,19 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ShowDamageNumber(float Damage, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeTeamHealth(float Amount);
+
+	void InitializeTeamHealth();
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetupInputComponent() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Characters")
+	TArray<ALkCharacterBase*> AvailableCharacters;
 
 private:
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -79,4 +92,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ULKDamageTextComponent> DamageTextComponentClass;
+
+	/*UPROPERTY(EditAnywhere, Category = "AbilitySystem")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;*/
+
+	UPROPERTY(EditAnywhere, Category = "AbilitySystem")
+	TObjectPtr<ULKSTeamAttributeSet> TeamAttributeSet;
+
+	int32 CurrentCharacterIndex = 0;
 };

@@ -21,9 +21,16 @@ public:
 
 	virtual int32 GetPlayerLevel() override;
 
+	UFUNCTION(BlueprintCallable)
+	void LevelUpCharacter();
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Character settings")
 	FRotator RotationRate = FRotator(0.f, 400.f, 0.f);
 
 	virtual void InitAbilityActorInfo() override;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	int32 Level = 1;
 };

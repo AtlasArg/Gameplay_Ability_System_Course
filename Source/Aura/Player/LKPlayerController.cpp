@@ -14,6 +14,10 @@
 #include "GameFramework/Character.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Aura/AbilitySystem/LKSTeamAttributeSet.h"
+#include "Aura/AbilitySystem/LKAttributeSet.h"
+#include "Aura/Character/LkPlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 ALKPlayerController::ALKPlayerController()
 {
@@ -21,6 +25,8 @@ ALKPlayerController::ALKPlayerController()
 	bReplicates = true;
 
 	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
+	TeamAttributeSet = CreateDefaultSubobject<ULKSTeamAttributeSet>("TeamAttributeSet");
+	AbilitySystemComponent = CreateDefaultSubobject<ULKAbilitySystemComponent>("AbilitySystemComponent");
 }
 
 void ALKPlayerController::PlayerTick(float DeltaTime)
@@ -43,6 +49,70 @@ void ALKPlayerController::ShowDamageNumber_Implementation(float Damage, ACharact
 	}
 }
 
+void ALKPlayerController::ChangeTeamHealth(float Amount)
+{
+	if (!TeamAttributeSet) return;
+
+	// Reduce total team health
+	float NewHealth = TeamAttributeSet->TeamHealth.GetCurrentValue() + Amount;
+	TeamAttributeSet->SetTeamHealth(FMath::Max(0.0f, NewHealth));
+
+	//// Distribute damage proportionally to characters
+	//float TotalMaxHealth = TeamAttributeSet->MaxTeamHealth.GetCurrentValue();
+	//if (TotalMaxHealth <= 0) return;
+
+	//for (ACharacter* Char : AvailableCharacters)
+	//{
+	//	if (Char)
+	//	{
+	//		UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+	//		if (ASC)
+	//		{
+	//			ULKCharacterAttributeSet* CharAttributes = Cast<ULKCharacterAttributeSet>(ASC->GetAttributeSet(ULKCharacterAttributeSet::StaticClass()));
+	//			if (CharAttributes)
+	//			{
+	//				// Reduce health proportionally
+	//				float Proportion = CharAttributes->MaxHealth.GetCurrentValue() / TotalMaxHealth;
+	//				float CharNewHealth = CharAttributes->Health.GetCurrentValue() - (DamageAmount * Proportion);
+	//				CharAttributes->SetHealth(FMath::Max(0.0f, CharNewHealth));
+	//			}
+	//		}
+	//	}
+	//}
+}
+
+void ALKPlayerController::InitializeTeamHealth()
+{
+	if (!TeamAttributeSet) return;
+
+	float TotalHealth = 0.0f;
+	float TotalMaxHealth = 0.0f;
+
+	for (ALkCharacterBase* Char : AvailableCharacters)
+	{
+		if (Char)
+		{
+			UAbilitySystemComponent* ASC = Char->GetAbilitySystemComponent();
+			if (ASC)
+			{
+				UAttributeSet* Attributes = Char->GetAttributeSet();//ULKAttributeSet::StaticClass());
+				if (Attributes)
+				{
+					ULKAttributeSet* CharAttributes = Cast<ULKAttributeSet>(Attributes);
+					//TotalHealth += CharAttributes->Health.GetCurrentValue(); 
+					TotalMaxHealth += CharAttributes->MaxHealth.GetCurrentValue(); // solo nos importa el max health por ahora
+				}
+			}
+		}
+	}
+
+	TeamAttributeSet->SetTeamHealth(TotalMaxHealth);
+	TeamAttributeSet->SetTeamMaxHealth(TotalMaxHealth);
+
+	//TeamAttributeSet->GetTeamMaxHealthAttribute().SetNumericValueChecked(TotalMaxHealth, TeamAttributeSet);
+	//TeamAttributeSet->GetTeamHealthAttribute().SetNumericValueChecked(TotalHealth, TeamAttributeSet);
+}
+
 void ALKPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,6 +131,28 @@ void ALKPlayerController::BeginPlay()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputModeData.SetHideCursorDuringCapture(false);
 	SetInputMode(InputModeData);
+
+	// Find all controlled characters in the world (or spawn them dynamically)
+	TArray<AActor*> FoundCharacters;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacter::StaticClass(), FoundCharacters);
+
+	for (AActor* Actor : FoundCharacters)
+	{
+		ALkPlayerCharacter* Char = Cast<ALkPlayerCharacter>(Actor);
+		if (IsValid(Char))  // TODO Gas: check if this is necesary && Char->GetOwner() == this)  // Ensure these belong to this player
+		{
+			AvailableCharacters.Add(Char);
+		}
+	}
+
+	// Start with first character
+	if (AvailableCharacters.Num() > 0)
+	{
+		CurrentCharacterIndex = 0;
+		Possess(AvailableCharacters[CurrentCharacterIndex]);
+	}
+
+	InitializeTeamHealth();
 }
 
 void ALKPlayerController::SetupInputComponent()
