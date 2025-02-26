@@ -133,13 +133,10 @@ void ALkBaseEnemy::BeginPlay()
 void ALkBaseEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	bHitReacting = NewCount > 0;
-	if (bHitReacting)
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	if (LKSAIController && LKSAIController->GetBlackboardComponent())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
-		if (LKSAIController && LKSAIController->GetBlackboardComponent())
-		{
-			LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
-		}
+		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 	}
 }
 
