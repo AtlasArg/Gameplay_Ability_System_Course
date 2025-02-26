@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Aura/LKGameplayTags.h"
 #include "Aura/Aura.h"
 
 
@@ -30,10 +31,22 @@ void ALkCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-FVector ALkCharacterBase::GetCombatSocketLocation_Implementation()
+FVector ALkCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(Weapon);
-	return Weapon->GetSocketLocation(WeaponTipSocketName);
+	const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(Weapon))
+	{
+		return Weapon->GetSocketLocation(WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	{
+		return GetMesh()->GetSocketLocation(RightHandSocketName);
+	}
+	return FVector();
 }
 
 void ALkCharacterBase::InitAbilityActorInfo()
@@ -115,6 +128,11 @@ bool ALkCharacterBase::IsDead_Implementation() const
 AActor* ALkCharacterBase::GetAvatar_Implementation()
 {
 	return this;
+}
+
+TArray<FTaggedMontage> ALkCharacterBase::GetAttackMontages_Implementation()
+{
+	return AttackMontages;
 }
 
 void ALkCharacterBase::MulticastHandleDeath_Implementation()

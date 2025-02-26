@@ -55,6 +55,10 @@ struct FLKGameplayTags
 
 		FGameplayTag Abilities_Attack;
 
+		FGameplayTag Montage_Attack_Weapon;
+		FGameplayTag Montage_Attack_RightHand;
+		FGameplayTag Montage_Attack_LeftHand;
+
 	protected:
 
 	private:
