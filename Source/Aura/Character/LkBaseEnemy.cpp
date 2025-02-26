@@ -80,6 +80,16 @@ void ALkBaseEnemy::Die()
 	Super::Die();
 }
 
+void ALkBaseEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* ALkBaseEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
 void ALkBaseEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -87,7 +97,7 @@ void ALkBaseEnemy::BeginPlay()
 	InitAbilityActorInfo();
 	if (HasAuthority())
 	{
-		ULKAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+		ULKAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);
 	}
 
 	ULKUserWidget* LKUSerWidget = Cast<ULKUserWidget>(HealthBar->GetUserWidgetObject());
@@ -126,7 +136,10 @@ void ALkBaseEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewC
 	if (bHitReacting)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
-		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+		if (LKSAIController && LKSAIController->GetBlackboardComponent())
+		{
+			LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+		}
 	}
 }
 

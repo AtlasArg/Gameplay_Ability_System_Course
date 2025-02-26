@@ -177,4 +177,12 @@ void FLKGameplayTags::InitializeNativeGameplayTags()
 		FString("Effects HitReact")
 	);
 
+	/*
+ * Abilities
+ */
+	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Attack"),
+		FString("Attack Ability Tag")
+	);
+
 }

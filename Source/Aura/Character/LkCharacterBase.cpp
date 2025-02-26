@@ -30,7 +30,7 @@ void ALkCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-FVector ALkCharacterBase::GetCombatSocketLocation()
+FVector ALkCharacterBase::GetCombatSocketLocation_Implementation()
 {
 	check(Weapon);
 	return Weapon->GetSocketLocation(WeaponTipSocketName);
@@ -107,6 +107,16 @@ void ALkCharacterBase::Die()
 	MulticastHandleDeath();
 }
 
+bool ALkCharacterBase::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* ALkCharacterBase::GetAvatar_Implementation()
+{
+	return this;
+}
+
 void ALkCharacterBase::MulticastHandleDeath_Implementation()
 {
 	Weapon->SetSimulatePhysics(true);
@@ -121,4 +131,5 @@ void ALkCharacterBase::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	Dissolve();
+	bDead = true;
 }

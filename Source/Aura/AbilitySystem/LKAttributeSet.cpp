@@ -181,8 +181,12 @@ void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Dam
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
-		ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(Props.SourceCharacter->Controller);
-		if (IsValid(LKPlayerController))
+		if (ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(Props.SourceCharacter->Controller))
+		{
+			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			return;
+		}
+		if (ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(Props.TargetCharacter->Controller))
 		{
 			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
