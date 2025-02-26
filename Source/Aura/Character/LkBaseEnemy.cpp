@@ -47,7 +47,9 @@ void ALkBaseEnemy::PossessedBy(AController* NewController)
 
 	LKSAIController = Cast<ALKSAIController>(NewController);
 	LKSAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	LKSAIController->RunBehaviorTree(BehaviorTree);
+	LKSAIController->RunBehaviorTree(BehaviorTree);	
+	LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Warrior);
 }
 
 void ALkBaseEnemy::HighlightActor()
@@ -56,6 +58,9 @@ void ALkBaseEnemy::HighlightActor()
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	Weapon->SetRenderCustomDepth(true);
 	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+
+
+	UE_LOG(LogTemp, Warning, TEXT("Movement Mode: %d"), (int32)GetCharacterMovement()->MovementMode);
 }
 
 void ALkBaseEnemy::UnHighlightActor()
@@ -121,6 +126,7 @@ void ALkBaseEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewC
 	if (bHitReacting)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 	}
 }
 
