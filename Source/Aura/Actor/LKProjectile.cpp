@@ -10,6 +10,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "Aura/Aura.h"
+#include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
 
 ALKProjectile::ALKProjectile()
 {
@@ -62,6 +63,12 @@ void ALKProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		return;
 	}
+
+	if (!ULKAbilitySystemLibrary::IsNotFriend(DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser(), OtherActor))
+	{
+		return;
+	}
+
 	if (!bHit)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);

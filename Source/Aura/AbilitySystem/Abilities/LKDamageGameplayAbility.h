@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LKGameplayAbility.h"
+#include "Aura/Interaction/LKCombatInterface.h"
 #include "LKDamageGameplayAbility.generated.h"
 
 UCLASS()
@@ -23,4 +24,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
 	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+
+	UFUNCTION(BlueprintPure)
+	FTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaggedMontage>& TaggedMontages) const;
 };
