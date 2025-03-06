@@ -77,6 +77,11 @@ int32 ALkBaseEnemy::GetPlayerLevel()
 void ALkBaseEnemy::Die()
 {
 	SetLifeSpan(LifeSpan);
+	if (IsValid(LKSAIController))
+	{
+		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
+	}
+
 	Super::Die();
 }
 
