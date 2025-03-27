@@ -80,6 +80,7 @@ void ALkCharacterBase::AddCharacterAbilities()
 	}
 
 	ASC->AddCharacterAbilites(StartupAbilities); 
+	ASC->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 void ALkCharacterBase::Dissolve()
@@ -133,6 +134,11 @@ AActor* ALkCharacterBase::GetAvatar_Implementation()
 TArray<FTaggedMontage> ALkCharacterBase::GetAttackMontages_Implementation()
 {
 	return AttackMontages;
+}
+
+ECharacterClass ALkCharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
 }
 
 void ALkCharacterBase::MulticastHandleDeath_Implementation()

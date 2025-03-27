@@ -9,8 +9,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Aura/LKGameplayTags.h"
 #include "Aura/Interaction/LKCombatInterface.h"
+#include "Aura/Interaction/LKPlayerInterface.h"
 #include "Aura/Player/LKPlayerController.h"
 #include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
+#include "Aura/LKSLogChannels.h"
 
 ULKAttributeSet::ULKAttributeSet()
 {
@@ -162,6 +164,8 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				{
 					CombatInterface->Die();
 				}
+
+				SendXPEvent(Props);
 			}
 			else
 			{
@@ -173,6 +177,18 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 			const bool bBlock = ULKAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 			const bool bCriticalHit = ULKAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 			ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
+		}
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float LocalIncomingXP = GetIncomingXP();
+		SetIncomingXP(0.f);
+
+		//TODO: See if we should level up
+		if (Props.SourceCharacter->Implements<ULKPlayerInterface>())
+		{
+			ILKPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
 		}
 	}
 }
@@ -190,6 +206,22 @@ void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Dam
 		{
 			LKPlayerController->ShowDamageNumber(Damaage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
+	}
+}
+
+void ULKAttributeSet::SendXPEvent(const FEffectProperties& Props)
+{
+	if (ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(Props.TargetCharacter))
+	{
+		const int32 TargetLevel = CombatInterface->GetPlayerLevel();
+		const ECharacterClass TargetClass = ILKCombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
+		const int32 XPReward = ULKAbilitySystemLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
+
+		const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+		FGameplayEventData Payload;
+		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
+		Payload.EventMagnitude = XPReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter, GameplayTags.Attributes_Meta_IncomingXP, Payload);
 	}
 }
 

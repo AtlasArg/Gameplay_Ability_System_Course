@@ -27,6 +27,15 @@ void ULKAbilitySystemComponent::AddCharacterAbilites(const TArray<TSubclassOf<UG
 	AbilitiesGivenDelegate.Broadcast(this);
 }
 
+void ULKAbilitySystemComponent::AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities)
+{
+	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupPassiveAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		GiveAbilityAndActivateOnce(AbilitySpec);
+	}
+}
+
 void ULKAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
 	const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {

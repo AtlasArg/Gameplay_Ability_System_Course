@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
+#include "Aura/AbilitySystem/Data/CharacterClassInfo.h"
 #include "LKCombatInterface.generated.h"
 
 USTRUCT(BlueprintType)
@@ -57,4 +58,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TArray<FTaggedMontage> GetAttackMontages();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ECharacterClass GetCharacterClass();
 };

@@ -6,7 +6,6 @@
 #include "LkCharacterBase.h"
 #include "Aura/Interaction/LKEnemyInterface.h"
 #include "Aura/UI/WidgetController/LKOverlayWidgetController.h"
-#include "Aura/AbilitySystem/Data/CharacterClassInfo.h"
 #include "LkBaseEnemy.generated.h"
 
 class UWidgetComponent;
@@ -64,9 +63,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	int32 Level = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
-	ECharacterClass CharacterClass = ECharacterClass::Warrior;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;

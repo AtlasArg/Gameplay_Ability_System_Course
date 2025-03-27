@@ -19,6 +19,8 @@ ALkPlayerCharacter::ALkPlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	CharacterClass = ECharacterClass::Elementalist;
 }
 
 void ALkPlayerCharacter::PossessedBy(AController* NewController)
@@ -36,6 +38,13 @@ void ALkPlayerCharacter::OnRep_PlayerState()
 
 	// Init ability actor info for the Client
 	InitAbilityActorInfo();
+}
+
+void ALkPlayerCharacter::AddToXP_Implementation(int32 InXP)
+{
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	LKPlayerState->AddToXP(InXP);
 }
 
 int32 ALkPlayerCharacter::GetPlayerLevel()

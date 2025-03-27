@@ -6,6 +6,8 @@
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "Aura/LKSLogChannels.h"
 #include "Aura/AbilitySystem/Data/LKAbilityInfo.h"
+#include "Aura/AbilitySystem/Data/LevelUpInfo.h"
+#include "Aura/Player/LKPlayerState.h"
 
 void ULKOverlayWidgetController::BroadcastInitialValues()
 {
@@ -20,6 +22,9 @@ void ULKOverlayWidgetController::BroadcastInitialValues()
 
 void ULKOverlayWidgetController::BindCallbacksToDependencies()
 {
+	ALKPlayerState* LKPlayerState = CastChecked<ALKPlayerState>(PlayerState);
+	LKPlayerState->OnXPChangedDelegate.AddUObject(this, &ULKOverlayWidgetController::OnXPChanged);
+
 	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
 		{
@@ -91,4 +96,27 @@ void ULKOverlayWidgetController::OnInitializeStartupAbilities(ULKAbilitySystemCo
 			AbilityInfoDelegate.Broadcast(Info);
 		});
 	LKAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
+}
+
+void ULKOverlayWidgetController::OnXPChanged(int32 NewXP) const
+{
+	const ALKPlayerState* AuraPlayerState = CastChecked<ALKPlayerState>(PlayerState);
+	const ULevelUpInfo* LevelUpInfo = AuraPlayerState->LevelUpInfo;
+	checkf(LevelUpInfo, TEXT("Unabled to find LevelUpInfo. Please fill out AuraPlayerState Blueprint"));
+
+	const int32 Level = LevelUpInfo->FindLevelForXP(NewXP);
+	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num();
+
+	if (Level <= MaxLevel && Level > 0)
+	{
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
+
+		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 XPForThisLevel = NewXP - PreviousLevelUpRequirement;
+
+		const float XPBarPercent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaLevelRequirement);
+
+		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
+	}
 }

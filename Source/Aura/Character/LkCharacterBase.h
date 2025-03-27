@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Aura/Interaction/LKCombatInterface.h"
+#include "Aura/AbilitySystem/Data/CharacterClassInfo.h"
 #include "LkCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -36,6 +37,8 @@ public:
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	/* Combat interface */
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -99,10 +102,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Combat")
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Warrior;
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupPassiveAbilities;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage>HitReactMontage;

@@ -24,6 +24,7 @@ public:
 
 	UFUNCTION()
 	void AddCharacterAbilites(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
+	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
 	bool bStartupAbilitiesGiven = false;
 
 	UFUNCTION()
