@@ -24,6 +24,12 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 {
 	ALKPlayerState* LKPlayerState = CastChecked<ALKPlayerState>(PlayerState);
 	LKPlayerState->OnXPChangedDelegate.AddUObject(this, &ULKOverlayWidgetController::OnXPChanged);
+	LKPlayerState->OnLevelChangedDelegate.AddLambda(
+		[this](int32 NewLevel)
+		{
+			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+		}
+	);
 
 	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)

@@ -86,9 +86,9 @@ void ULKAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextOb
 	const FCharacterClassDefaultInfo& DefaultInfo = ClassInfo->GetClassDefaultInfo(CharacterClass);
 	for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities)
 	{
-		if (ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(ASC->GetAvatarActor()))
+		if (ASC->GetAvatarActor()->Implements<ULKCombatInterface>())
 		{
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, CombatInterface->GetPlayerLevel());
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, ILKCombatInterface::Execute_GetPlayerLevel(ASC->GetAvatarActor())); 
 			ASC->GiveAbility(AbilitySpec);
 		}
 	}

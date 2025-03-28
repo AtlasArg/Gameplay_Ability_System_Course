@@ -6,11 +6,28 @@
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "Aura/AbilitySystem/LKAttributeSet.h"
 #include "Aura/Player/LKPlayerState.h"
+#include "NiagaraComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Aura/Player/LKPlayerController.h"
 #include "Aura/UI/HUD/LKHUD.h"
+#include "Aura/AbilitySystem/Data/LevelUpInfo.h"
 
 ALkPlayerCharacter::ALkPlayerCharacter()
 {
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
+	CameraBoom->SetupAttachment(GetRootComponent());
+	CameraBoom->SetUsingAbsoluteRotation(true);
+	CameraBoom->bDoCollisionTest = false;
+
+	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>("TopDownCameraComponent");
+	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	TopDownCameraComponent->bUsePawnControlRotation = false;
+
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
+	LevelUpNiagaraComponent->bAutoActivate = false;
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = RotationRate;
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -47,7 +64,55 @@ void ALkPlayerCharacter::AddToXP_Implementation(int32 InXP)
 	LKPlayerState->AddToXP(InXP);
 }
 
-int32 ALkPlayerCharacter::GetPlayerLevel()
+void ALkPlayerCharacter::LevelUp_Implementation()
+{
+	MulticastLevelUpParticles();
+}
+
+int32 ALkPlayerCharacter::GetXP_Implementation() const
+{
+	const ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->GetXP();
+}
+
+int32 ALkPlayerCharacter::FindLevelForXP_Implementation(int32 InXP) const
+{
+	const ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->LevelUpInfo->FindLevelForXP(InXP);
+}
+
+int32 ALkPlayerCharacter::GetAttributePointsReward_Implementation(int32 Level) const
+{
+	const ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->LevelUpInfo->LevelUpInformation[Level].AttributePointAward;
+}
+
+int32 ALkPlayerCharacter::GetSpellPointsReward_Implementation(int32 Level) const
+{
+	const ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->LevelUpInfo->LevelUpInformation[Level].SpellPointAward;
+}
+
+void ALkPlayerCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
+{
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	LKPlayerState->AddToLevel(InPlayerLevel);
+}
+
+void ALkPlayerCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)
+{
+}
+
+void ALkPlayerCharacter::AddToSpellPoints_Implementation(int32 InSpellPoints)
+{
+}
+
+int32 ALkPlayerCharacter::GetPlayerLevel_Implementation()
 {
 	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
 	check(LKPlayerState);
@@ -75,4 +140,16 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
+}
+
+void ALkPlayerCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		const FVector CameraLocation = TopDownCameraComponent->GetComponentLocation();
+		const FVector NiagaraSystemLocation = LevelUpNiagaraComponent->GetComponentLocation();
+		const FRotator ToCameraRotation = (CameraLocation - NiagaraSystemLocation).Rotation();
+		LevelUpNiagaraComponent->SetWorldRotation(ToCameraRotation);
+		LevelUpNiagaraComponent->Activate(true);
+	}
 }

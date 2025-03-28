@@ -85,8 +85,17 @@ void ULKExceCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
-	ILKCombatInterface* SourceCombatInterface = Cast<ILKCombatInterface>(SourceAvatar);
-	ILKCombatInterface* TargetCombatInterface = Cast<ILKCombatInterface>(TargetAvatar);
+
+	int32 SourcePlayerLevel = 1;
+	if (SourceAvatar->Implements<ULKCombatInterface>())
+	{
+		SourcePlayerLevel = ILKCombatInterface::Execute_GetPlayerLevel(SourceAvatar);
+	}
+	int32 TargetPlayerLevel = 1;
+	if (TargetAvatar->Implements<ULKCombatInterface>())
+	{
+		TargetPlayerLevel = ILKCombatInterface::Execute_GetPlayerLevel(TargetAvatar);
+	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	
@@ -140,10 +149,10 @@ void ULKExceCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	const UCharacterClassInfo* CharacterClassInfo = ULKAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 	const FRealCurve* ArmorPenetrationCurve = CharacterClassInfo->DamageCalculationCoef->FindCurve(FName("ArmorPenetration"), FString());
-	const float ArmorPenetrationCoef = ArmorPenetrationCurve->Eval(SourceCombatInterface->GetPlayerLevel());
+	const float ArmorPenetrationCoef = ArmorPenetrationCurve->Eval(SourcePlayerLevel);
 
 	const FRealCurve* EffectiveArmorCurve = CharacterClassInfo->DamageCalculationCoef->FindCurve(FName("EffectiveArmor"), FString());
-	const float EffectiveArmorCoef = EffectiveArmorCurve->Eval(TargetCombatInterface->GetPlayerLevel());
+	const float EffectiveArmorCoef = EffectiveArmorCurve->Eval(TargetPlayerLevel);
 
 	const float EffectiveArmor = TargetArmor * (100 - SourceArmorPenetration * ArmorPenetrationCoef) / 100.f;
 	Damage *= (100 - EffectiveArmor * EffectiveArmorCoef) / 100.f;
@@ -161,7 +170,7 @@ void ULKExceCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecu
 	SourceCriticalHitDamage = FMath::Max<float>(0.f, SourceCriticalHitDamage);
 
 	const FRealCurve* CriticalHitResistanceCurve = CharacterClassInfo->DamageCalculationCoef->FindCurve(FName("CriticalHitResistance"), FString());
-	const float CriticalHitResistanceCoef = CriticalHitResistanceCurve->Eval(TargetCombatInterface->GetPlayerLevel());
+	const float CriticalHitResistanceCoef = CriticalHitResistanceCurve->Eval(TargetPlayerLevel);
 
 	// Cirical hit resistance reduces critical hit chance by a certain percentage
 	const float EffectiveCriticalHitChance = SourceCriticalHitChance - TargetCriticalHitResistance * CriticalHitResistanceCoef;

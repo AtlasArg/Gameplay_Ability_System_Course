@@ -69,7 +69,7 @@ void ALkBaseEnemy::UnHighlightActor()
 	Weapon->SetRenderCustomDepth(false);
 }
 
-int32 ALkBaseEnemy::GetPlayerLevel()
+int32 ALkBaseEnemy::GetPlayerLevel_Implementation()
 {
 	return Level;
 }

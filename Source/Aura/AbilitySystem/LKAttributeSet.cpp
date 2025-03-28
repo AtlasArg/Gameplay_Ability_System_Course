@@ -6,13 +6,11 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
-#include "Kismet/GameplayStatics.h"
 #include "Aura/LKGameplayTags.h"
 #include "Aura/Interaction/LKCombatInterface.h"
 #include "Aura/Interaction/LKPlayerInterface.h"
 #include "Aura/Player/LKPlayerController.h"
 #include "Aura/AbilitySystem/LKAbilitySystemLibrary.h"
-#include "Aura/LKSLogChannels.h"
 
 ULKAttributeSet::ULKAttributeSet()
 {
@@ -186,8 +184,28 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		SetIncomingXP(0.f);
 
 		//TODO: See if we should level up
-		if (Props.SourceCharacter->Implements<ULKPlayerInterface>())
+		if (Props.SourceCharacter->Implements<ULKPlayerInterface>() && Props.SourceCharacter->Implements<ULKCombatInterface>())
 		{
+			const int32 CurrentLevel = ILKCombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+			const int32 CurrentXP = ILKPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+			const int32 NewLevel = ILKPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+			const int32 NumLevelUps = NewLevel - CurrentLevel;
+			if (NumLevelUps > 0)
+			{
+				const int32 AttributePointsReward = ILKPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+				const int32 SpellPointsReward = ILKPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+				ILKPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
+				ILKPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
+				ILKPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
+
+				SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());
+
+				ILKPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+			}
+
 			ILKPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
 		}
 	}
@@ -211,9 +229,9 @@ void ULKAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Dam
 
 void ULKAttributeSet::SendXPEvent(const FEffectProperties& Props)
 {
-	if (ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(Props.TargetCharacter))
+	if (Props.TargetCharacter->Implements<ULKCombatInterface>())
 	{
-		const int32 TargetLevel = CombatInterface->GetPlayerLevel();
+		const int32 TargetLevel = ILKCombatInterface::Execute_GetPlayerLevel(Props.TargetCharacter);
 		const ECharacterClass TargetClass = ILKCombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
 		const int32 XPReward = ULKAbilitySystemLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
 

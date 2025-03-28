@@ -29,8 +29,11 @@ float ULKMMCMaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffe
 	GetCapturedAttributeMagnitude(VigorDefinition, Spec, EvaluationParameters, Vigor);
 	Vigor = FMath::Max<float>(Vigor, 0.f);
 
-	ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(Spec.GetContext().GetSourceObject());
-	const int32 PlayerLevel = CombatInterface->GetPlayerLevel();
+	int32 PlayerLevel = 1;
+	if (Spec.GetContext().GetSourceObject()->Implements<ULKCombatInterface>())
+	{
+		PlayerLevel = ILKCombatInterface::Execute_GetPlayerLevel(Spec.GetContext().GetSourceObject());
+	}
 
 	return 80.f + 2.5f * Vigor + 10.f * PlayerLevel;
 }
