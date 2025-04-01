@@ -11,7 +11,6 @@
 
 struct FOnAttributeChangeData;
 class ULKUserWidget;
-class ULKAbilityInfo;
 class ULKAbilitySystemComponent;
 struct FAuraAbilityInfo;
 
@@ -33,12 +32,11 @@ struct FUIWidgetRow : public FTableRowBase
 	UTexture2D* Image = nullptr;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FLKSAbilityInfo&, Info);
 
-UCLASS()
+
+UCLASS(BlueprintType, Blueprintable)
 class AURA_API ULKOverlayWidgetController : public ULKWidgetController
 {
 	GENERATED_BODY()
@@ -63,9 +61,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRow;
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
-	FAbilityInfoSignature AbilityInfoDelegate;
-
 	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
 	FOnAttributeChangedSignature OnXPPercentChangedDelegate;
 
@@ -76,15 +71,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
-	TObjectPtr<ULKAbilityInfo> AbilityInfo;
-
 	template<typename T>
-	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);	
 
-	void OnInitializeStartupAbilities(ULKAbilitySystemComponent* LKAbilitySystemComponent);
-
-	void OnXPChanged(int32 NewXP) const;
+	void OnXPChanged(int32 NewXP);
 };
 
 template<typename T>

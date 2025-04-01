@@ -200,14 +200,32 @@ void ULKAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 				ILKPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
 				ILKPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
 
-				SetHealth(GetMaxHealth());
-				SetMana(GetMaxMana());
+		/*		SetHealth(GetMaxHealth());
+				SetMana(GetMaxMana());*/
+				bTopOffHealth = true;
+				bTopOffMana = true;
 
 				ILKPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
 			}
 
 			ILKPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
 		}
+	}
+}
+
+void ULKAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+	if (Attribute == GetMaxHealthAttribute() && bTopOffHealth)
+	{
+		SetHealth(GetMaxHealth());
+		bTopOffHealth = false;
+	}
+	if (Attribute == GetMaxManaAttribute() && bTopOffMana)
+	{
+		SetMana(GetMaxMana());
+		bTopOffMana = false;
 	}
 }
 

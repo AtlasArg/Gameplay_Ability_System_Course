@@ -6,10 +6,18 @@
 #include "UObject/NoExportTypes.h"
 #include "LKWidgetController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FLKSAbilityInfo&, Info);
+
 class APlayerController;
 class APlayerState;
 class UAttributeSet;
 class UAbilitySystemComponent;
+class ULKAbilityInfo;
+class ALKPlayerController;
+class ULKAttributeSet;
+class ALKPlayerState;
+class ULKAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -51,8 +59,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void BroadcastInitialValues();
 	virtual void BindCallbacksToDependencies();
-	
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
+	FAbilityInfoSignature AbilityInfoDelegate;
+
+	void BroadcastAbilityInfo();
+
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<ULKAbilityInfo> AbilityInfo;
+
 	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 
@@ -64,4 +81,21 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<ALKPlayerController> LKPlayerController;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<ALKPlayerState> LKPlayerState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<ULKAbilitySystemComponent> LKAbilitySystemComponent;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<ULKAttributeSet> LKAttributeSet;
+
+	ALKPlayerController* GetLKPC();
+	ALKPlayerState* GetLKPS();
+	ULKAbilitySystemComponent* GetLKASC();
+	ULKAttributeSet* GetLKAS();
 };

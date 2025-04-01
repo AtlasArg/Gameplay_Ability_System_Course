@@ -11,19 +11,37 @@
 #include "AbilitySystemComponent.h"
 #include "Aura/LKAbilityTypes.h"
 
-ULKOverlayWidgetController* ULKAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+bool ULKAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, ALKHUD*& OutAuraHUD)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
 	{
-		if (ALKHUD* HUD = Cast<ALKHUD>(PC->GetHUD()))
+		OutAuraHUD = Cast<ALKHUD>(PC->GetHUD());
+		if (IsValid(OutAuraHUD))
 		{
 			ALKPlayerState* PS = PC->GetPlayerState<ALKPlayerState>();
 			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return HUD->GetOverlayWidgetController(WidgetControllerParams);
+			
+			OutWCParams.AttributeSet = AS;
+			OutWCParams.AbilitySystemComponent = ASC;
+			OutWCParams.PlayerState = PS;
+			OutWCParams.PlayerController = PC;
+			return true;
 		}
 	}
+
+	return false;
+}
+
+ULKOverlayWidgetController* ULKAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	ALKHUD* HUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, HUD))
+	{
+		return HUD->GetOverlayWidgetController(WCParams);
+	}
+
 	return nullptr;
 }
 
@@ -31,17 +49,25 @@ ULKOverlayWidgetController* ULKAbilitySystemLibrary::GetOverlayWidgetController(
 ULKAttributeMenuWidgetController* ULKAbilitySystemLibrary::GetAttributeMenuWidgetController(
 	const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	FWidgetControllerParams WCParams;
+	ALKHUD* LKHUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, LKHUD))
 	{
-		if (ALKHUD* HUD = Cast<ALKHUD>(PC->GetHUD()))
-		{
-			ALKPlayerState* PS = PC->GetPlayerState<ALKPlayerState>();
-			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
-			UAttributeSet* AS = PS->GetAttributeSet();
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return HUD->GetAttributeMenuWidgetController(WidgetControllerParams);
-		}
+		return LKHUD->GetAttributeMenuWidgetController(WCParams);
 	}
+
+	return nullptr;
+}
+
+ULKSpellMenuWidgetController* ULKAbilitySystemLibrary::GetSpellMenuWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	ALKHUD* LKHUD = nullptr;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams, LKHUD))
+	{
+		return LKHUD->GetSpellMenuWidgetController(WCParams);
+	}
+
 	return nullptr;
 }
 
@@ -96,13 +122,20 @@ void ULKAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextOb
 
 UCharacterClassInfo* ULKAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
-	ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	const ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 	if (!IsValid(LKGameMode))
 	{
 		return nullptr;
 	}
 
 	return LKGameMode->CharacterClassInfo;
+}
+
+ULKAbilityInfo* ULKAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldContextObject)
+{
+	const ALKGameModeBase* LKGameMode = Cast<ALKGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (LKGameMode == nullptr) return nullptr;
+	return LKGameMode->AbilityInfo;
 }
 
 bool ULKAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)

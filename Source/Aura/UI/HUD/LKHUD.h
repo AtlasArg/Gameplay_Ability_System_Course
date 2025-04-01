@@ -12,6 +12,7 @@ class ULKAttributeMenuWidgetController;
 struct FWidgetControllerParams;
 class UAbilitySystemComponent;
 class UAttributeSet;
+class ULKSpellMenuWidgetController;
 
 UCLASS()
 class AURA_API ALKHUD : public AHUD
@@ -25,6 +26,8 @@ public:
 	ULKOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
 	ULKAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams);
+
+	ULKSpellMenuWidgetController* GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
@@ -44,4 +47,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ULKAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<ULKSpellMenuWidgetController> SpellMenuWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ULKSpellMenuWidgetController> SpellMenuWidgetControllerClass;
 };

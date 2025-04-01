@@ -7,6 +7,7 @@
 #include "LKGameModeBase.generated.h"
 
 class UCharacterClassInfo;
+class ULKAbilityInfo;
 
 UCLASS()
 class AURA_API ALKGameModeBase : public AGameModeBase
@@ -16,4 +17,7 @@ class AURA_API ALKGameModeBase : public AGameModeBase
 public:
 	UPROPERTY(EditDefaultsOnly, Category="Character Class Defaults")
 	TObjectPtr<UCharacterClassInfo> CharacterClassInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Info")
+	TObjectPtr<ULKAbilityInfo> AbilityInfo;
 };

@@ -11,63 +11,60 @@
 
 void ULKOverlayWidgetController::BroadcastInitialValues()
 {
-	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
 
-	OnHealthChanged.Broadcast(LKAttributeSet->GetHealth());
-	OnMaxHealthChanged.Broadcast(LKAttributeSet->GetMaxHealth());
+	OnHealthChanged.Broadcast(GetLKAS()->GetHealth());
+	OnMaxHealthChanged.Broadcast(GetLKAS()->GetMaxHealth());
 
-	OnManaChanged.Broadcast(LKAttributeSet->GetMana());
-	OnMaxManaChanged.Broadcast(LKAttributeSet->GetMaxMana());
+	OnManaChanged.Broadcast(GetLKAS()->GetMana());
+	OnMaxManaChanged.Broadcast(GetLKAS()->GetMaxMana());
 }
 
 void ULKOverlayWidgetController::BindCallbacksToDependencies()
 {
-	ALKPlayerState* LKPlayerState = CastChecked<ALKPlayerState>(PlayerState);
-	LKPlayerState->OnXPChangedDelegate.AddUObject(this, &ULKOverlayWidgetController::OnXPChanged);
-	LKPlayerState->OnLevelChangedDelegate.AddLambda(
+	GetLKPS()->OnXPChangedDelegate.AddUObject(this, &ULKOverlayWidgetController::OnXPChanged);
+	GetLKPS()->OnLevelChangedDelegate.AddLambda(
 		[this](int32 NewLevel)
 		{
 			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
 		}
 	);
 
-	const ULKAttributeSet* LKAttributeSet = CastChecked<ULKAttributeSet>(AttributeSet);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetLKAS()->GetHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
 		{
 			OnHealthChanged.Broadcast(Data.NewValue);
 		}
 	);
 	
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetLKAS()->GetMaxHealthAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
 		{
 			OnMaxHealthChanged.Broadcast(Data.NewValue);
 		}
 	);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetLKAS()->GetManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
 		{
 			OnManaChanged.Broadcast(Data.NewValue);
 		}
 	);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(LKAttributeSet->GetMaxManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetLKAS()->GetMaxManaAttribute()).AddLambda([this](const FOnAttributeChangeData& Data)
 		{
 			OnMaxManaChanged.Broadcast(Data.NewValue);
 		}
 	);
 
-	if (ULKAbilitySystemComponent* ASC = Cast<ULKAbilitySystemComponent>(AbilitySystemComponent))
+	if (GetLKASC())
 	{
-		if (ASC->bStartupAbilitiesGiven)
+		if (GetLKASC()->bStartupAbilitiesGiven)
 		{
-			OnInitializeStartupAbilities(ASC);
+			BroadcastAbilityInfo();
 		}
 		else
 		{
-			ASC->AbilitiesGivenDelegate.AddUObject(this, &ULKOverlayWidgetController::OnInitializeStartupAbilities);
+			GetLKASC()->AbilitiesGivenDelegate.AddUObject(this, &ULKOverlayWidgetController::BroadcastAbilityInfo);
 		}
 
-		Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->OnEffectAssetTags.AddLambda(
+		Cast<ULKAbilitySystemComponent>(GetLKASC())->OnEffectAssetTags.AddLambda(
 			[this](const FGameplayTagContainer& AssetTags)
 			{
 				for (const FGameplayTag& Tag : AssetTags)
@@ -85,26 +82,7 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 	}
 }
 
-void ULKOverlayWidgetController::OnInitializeStartupAbilities(ULKAbilitySystemComponent* LKAbilitySystemComponent)
-{
-	//TODO Get information about all given abilities, look up their Ability Info, and broadcast it to widgets.
-	if (!LKAbilitySystemComponent->bStartupAbilitiesGiven)
-	{
-		return;
-	}
-
-	FForEachAbility BroadcastDelegate;
-	BroadcastDelegate.BindLambda([this, LKAbilitySystemComponent](const FGameplayAbilitySpec& AbilitySpec)
-		{
-			//TODO need a way to figure out the ability tag for a given ability spec.
-			FLKSAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(LKAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec));
-			Info.InputTag = LKAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
-			AbilityInfoDelegate.Broadcast(Info);
-		});
-	LKAbilitySystemComponent->ForEachAbility(BroadcastDelegate);
-}
-
-void ULKOverlayWidgetController::OnXPChanged(int32 NewXP) const
+void ULKOverlayWidgetController::OnXPChanged(int32 NewXP)
 {
 	const ALKPlayerState* AuraPlayerState = CastChecked<ALKPlayerState>(PlayerState);
 	const ULevelUpInfo* LevelUpInfo = AuraPlayerState->LevelUpInfo;

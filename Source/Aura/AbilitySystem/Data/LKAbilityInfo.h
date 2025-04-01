@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "LKAbilityInfo.generated.h"
 
+class UGameplayAbility;
+
 USTRUCT(BlueprintType)
 struct FLKSAbilityInfo
 {
@@ -18,6 +20,9 @@ struct FLKSAbilityInfo
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag InputTag = FGameplayTag();
 
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTag StatusTag = FGameplayTag();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTag CooldownTag = FGameplayTag();
 
@@ -26,6 +31,12 @@ struct FLKSAbilityInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UMaterialInterface> BackgroundMaterial = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 LevelRequirement = 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> Ability;
 };
 
 UCLASS()

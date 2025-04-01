@@ -102,14 +102,39 @@ void ALkPlayerCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
 	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
 	check(LKPlayerState);
 	LKPlayerState->AddToLevel(InPlayerLevel);
+
+	if (ULKAbilitySystemComponent* LKASC = Cast<ULKAbilitySystemComponent>(GetAbilitySystemComponent()))
+	{
+		LKASC->UpdateAbilityStatuses(LKPlayerState->GetPlayerLevel());
+	}
 }
 
 void ALkPlayerCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)
 {
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	LKPlayerState->AddToAttributePoints(InAttributePoints);
 }
 
 void ALkPlayerCharacter::AddToSpellPoints_Implementation(int32 InSpellPoints)
 {
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	LKPlayerState->AddToSpellPoints(InSpellPoints);
+}
+
+int32 ALkPlayerCharacter::GetAttributePoints_Implementation() const
+{
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->GetAttributePoints();
+}
+
+int32 ALkPlayerCharacter::GetSpellPoints_Implementation() const
+{
+	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
+	check(LKPlayerState);
+	return LKPlayerState->GetSpellPoints();
 }
 
 int32 ALkPlayerCharacter::GetPlayerLevel_Implementation()

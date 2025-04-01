@@ -7,9 +7,12 @@
 #include "Data/CharacterClassInfo.h"
 #include "LKAbilitySystemLibrary.generated.h"
 
+class ULKSpellMenuWidgetController;
 class ULKOverlayWidgetController;
 class ULKAttributeMenuWidgetController;
 class UAbilitySystemComponent;
+struct FWidgetControllerParams;
+class ULKAbilityInfo;
 
 UCLASS()
 class AURA_API ULKAbilitySystemLibrary : public UBlueprintFunctionLibrary
@@ -17,12 +20,17 @@ class AURA_API ULKAbilitySystemLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 
-	UFUNCTION(BlueprintPure, Category = "LKAbilitySystemLibrary|WidgetController")
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
+	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, ALKHUD*& OutAuraHUD);
+
+	UFUNCTION(BlueprintPure, Category = "LKAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static ULKOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
 
-
-	UFUNCTION(BlueprintPure, Category = "LKAbilitySystemLibrary|WidgetController")
+	UFUNCTION(BlueprintPure, Category = "LKAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static ULKAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
+	static ULKSpellMenuWidgetController* GetSpellMenuWidgetController(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "LKAbilitySystemLibrary|CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC);
@@ -33,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "LKAbilitySystemLibrary|CharacterClassDefaults")
 	static UCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
+	static ULKAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "LKAbilitySystemLibrary|GameplayEffects")
 	static bool IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle);
