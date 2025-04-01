@@ -75,6 +75,7 @@ struct FLKGameplayTags
 		FGameplayTag Debuff_Physical;
 
 		FGameplayTag Abilities_Attack;
+		FGameplayTag Abilities_None;
 
 		FGameplayTag Abilities_Fire_FireBolt;
 		FGameplayTag Abilities_Lightning_Electrocute;
