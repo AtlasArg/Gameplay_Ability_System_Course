@@ -8,6 +8,7 @@
 #include "Aura/AbilitySystem/Data/LKAbilityInfo.h"
 #include "Aura/AbilitySystem/Data/LevelUpInfo.h"
 #include "Aura/Player/LKPlayerState.h"
+#include "Aura/LKGameplayTags.h"
 
 void ULKOverlayWidgetController::BroadcastInitialValues()
 {
@@ -55,6 +56,7 @@ void ULKOverlayWidgetController::BindCallbacksToDependencies()
 
 	if (GetLKASC())
 	{
+		GetLKASC()->AbilityEquipped.AddUObject(this, &ThisClass::OnAbilityEquipped);
 		if (GetLKASC()->bStartupAbilitiesGiven)
 		{
 			BroadcastAbilityInfo();
@@ -103,4 +105,21 @@ void ULKOverlayWidgetController::OnXPChanged(int32 NewXP)
 
 		OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
 	}
+}
+
+void ULKOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
+{
+	const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+
+	FLKSAbilityInfo LastSlotInfo;
+	LastSlotInfo.StatusTag = GameplayTags.Abilities_Status_Unlocked;
+	LastSlotInfo.InputTag = PreviousSlot;
+	LastSlotInfo.AbilityTag = GameplayTags.Abilities_None;
+	// Broadcast empty info if PreviousSlot is a valid slot. Only if equipping an already-equipped spell
+	AbilityInfoDelegate.Broadcast(LastSlotInfo);
+
+	FLKSAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+	Info.StatusTag = Status;
+	Info.InputTag = Slot;
+	AbilityInfoDelegate.Broadcast(Info);
 }
