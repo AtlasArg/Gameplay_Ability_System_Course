@@ -4,6 +4,7 @@
 #include "LkCharacterBase.h"
 #include "AbilitySystemComponent.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
+#include "Aura/AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Aura/LKGameplayTags.h"
 #include "Aura/Aura.h"
@@ -12,6 +13,11 @@
 ALkCharacterBase::ALkCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+
+	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = GameplayTags.Debuff_Burn;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -141,6 +147,11 @@ ECharacterClass ALkCharacterBase::GetCharacterClass_Implementation()
 	return CharacterClass;
 }
 
+FOnASCRegistered ALkCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnAscRegistered;
+}
+
 void ALkCharacterBase::MulticastHandleDeath_Implementation()
 {
 	Weapon->SetSimulatePhysics(true);
@@ -156,4 +167,5 @@ void ALkCharacterBase::MulticastHandleDeath_Implementation()
 
 	Dissolve();
 	bDead = true;
+	BurnDebuffComponent->Deactivate();
 }

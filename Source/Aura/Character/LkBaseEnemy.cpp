@@ -154,6 +154,8 @@ void ALkBaseEnemy::InitAbilityActorInfo()
 	{
 		InitializeDefaultAttributes();
 	}
+
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void ALkBaseEnemy::InitializeDefaultAttributes() const

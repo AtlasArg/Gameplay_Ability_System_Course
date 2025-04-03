@@ -10,6 +10,8 @@
 #include "Aura/Interaction/LKCombatInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Aura/LKAbilityTypes.h"
+#include "Aura/LKGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 bool ULKAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, ALKHUD*& OutAuraHUD)
 {
@@ -148,11 +150,59 @@ bool ULKAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& E
 	return false;
 }
 
+bool ULKAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->IsSuccessfulDebuff();
+	}
+	return false;
+}
+
+float ULKAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->GetDebuffDamage();
+	}
+	return 0.f;
+}
+
+float ULKAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->GetDebuffDuration();
+	}
+	return 0.f;
+}
+
+float ULKAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->GetDebuffFrequency();
+	}
+	return 0.f;
+}
+
+FGameplayTag ULKAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		if (LKEffectContext->GetDamageType().IsValid())
+		{
+			return *LKEffectContext->GetDamageType();
+		}
+	}
+	return FGameplayTag();
+}
+
 bool ULKAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
-	if (const FLKGameplayEffectContext* AuraEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		return AuraEffectContext->IsCriticalHit();
+		return LKEffectContext->IsCriticalHit();
 	}
 
 	return false;
@@ -171,6 +221,47 @@ void ULKAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref)FGameplayEffectContext
 	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		LKEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetIsSuccessfulDebuff(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, bool bInSuccessfulDebuff)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetIsSuccessfulDebuff(bInSuccessfulDebuff);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetDebuffDamage(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InDamage)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetDebuffDamage(InDamage);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetDebuffDuration(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InDuration)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetDebuffDuration(InDuration);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetDebuffFrequency(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InFrequency)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetDebuffFrequency(InFrequency);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetDamageType(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InDamageType)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		const TSharedPtr<FGameplayTag> DamageType = MakeShared<FGameplayTag>(InDamageType);
+		LKEffectContext->SetDamageType(DamageType);
 	}
 }
 
@@ -199,6 +290,25 @@ bool ULKAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActo
 	const bool bBothAreEnemies = FirstActor->ActorHasTag(FName("Enemy")) && SecondActor->ActorHasTag(FName("Enemy"));
 	const bool bFriends = bBothArePlayers || bBothAreEnemies;
 	return !bFriends;
+}
+
+FGameplayEffectContextHandle ULKAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams)
+{
+	const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+	const AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
+
+	FGameplayEffectContextHandle EffectContexthandle = DamageEffectParams.SourceAbilitySystemComponent->MakeEffectContext();
+	EffectContexthandle.AddSourceObject(SourceAvatarActor);
+	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContexthandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Chance, DamageEffectParams.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Damage, DamageEffectParams.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, DamageEffectParams.DebuffDuration);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, DamageEffectParams.DebuffFrequency);
+
+	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	return EffectContexthandle;
 }
 
 int32 ULKAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass CharacterClass, int32 CharacterLevel)

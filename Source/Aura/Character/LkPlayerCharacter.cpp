@@ -153,6 +153,7 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 
 	AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
 	AttributeSet = LKPlayerState->GetAttributeSet();
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 
 	ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(GetController());
 	if (LKPlayerController != nullptr)
