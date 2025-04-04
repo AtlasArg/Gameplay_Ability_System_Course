@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "LKPlayerController.generated.h"
 
+class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 class ILKEnemyInterface;
@@ -76,6 +77,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr <USplineComponent> Spline;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ULKDamageTextComponent> DamageTextComponentClass;

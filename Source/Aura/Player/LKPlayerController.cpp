@@ -14,6 +14,7 @@
 #include "GameFramework/Character.h"
 #include "Aura/AbilitySystem/LKAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "NiagaraFunctionLibrary.h"
 
 ALKPlayerController::ALKPlayerController()
 {
@@ -182,6 +183,7 @@ void ALKPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 		}
 
 		FollowTime = 0.f;
