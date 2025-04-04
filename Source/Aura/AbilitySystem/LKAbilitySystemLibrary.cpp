@@ -198,6 +198,24 @@ FGameplayTag ULKAbilitySystemLibrary::GetDamageType(const FGameplayEffectContext
 	return FGameplayTag();
 }
 
+FVector ULKAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->GetDeathImpulse();
+	}
+	return FVector::ZeroVector;
+}
+
+FVector ULKAbilitySystemLibrary::GetKnockbackForce(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return LKEffectContext->GetKnockbackForce();
+	}
+	return FVector::ZeroVector;
+}
+
 bool ULKAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FLKGameplayEffectContext* LKEffectContext = static_cast<const FLKGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -265,6 +283,22 @@ void ULKAbilitySystemLibrary::SetDamageType(UPARAM(ref)FGameplayEffectContextHan
 	}
 }
 
+void ULKAbilitySystemLibrary::SetDeathImpulse(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, const FVector& InImpulse)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetDeathImpulse(InImpulse);
+	}
+}
+
+void ULKAbilitySystemLibrary::SetKnockbackForce(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, const FVector& InForce)
+{
+	if (FLKGameplayEffectContext* LKEffectContext = static_cast<FLKGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		LKEffectContext->SetKnockbackForce(InForce);
+	}
+}
+
 void ULKAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
 {
 	FCollisionQueryParams SphereParams;
@@ -299,6 +333,8 @@ FGameplayEffectContextHandle ULKAbilitySystemLibrary::ApplyDamageEffect(const FD
 
 	FGameplayEffectContextHandle EffectContexthandle = DamageEffectParams.SourceAbilitySystemComponent->MakeEffectContext();
 	EffectContexthandle.AddSourceObject(SourceAvatarActor);
+	SetDeathImpulse(EffectContexthandle, DamageEffectParams.DeathImpulse);
+	SetKnockbackForce(EffectContexthandle, DamageEffectParams.KnockbackForce);
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(DamageEffectParams.DamageGameplayEffectClass, DamageEffectParams.AbilityLevel, EffectContexthandle);
 
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageEffectParams.DamageType, DamageEffectParams.BaseDamage);

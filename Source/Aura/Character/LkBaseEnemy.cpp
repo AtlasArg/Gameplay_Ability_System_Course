@@ -74,7 +74,7 @@ int32 ALkBaseEnemy::GetPlayerLevel_Implementation()
 	return Level;
 }
 
-void ALkBaseEnemy::Die()
+void ALkBaseEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(LifeSpan);
 	if (IsValid(LKSAIController))
@@ -82,7 +82,7 @@ void ALkBaseEnemy::Die()
 		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	}
 
-	Super::Die();
+	Super::Die(DeathImpulse);
 }
 
 void ALkBaseEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
