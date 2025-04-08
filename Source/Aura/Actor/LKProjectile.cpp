@@ -49,6 +49,7 @@ void ALKProjectile::OnHit()
 	if (LoopingSoundComponent)
 	{
 		LoopingSoundComponent->Stop();
+		LoopingSoundComponent->DestroyComponent();
 	}
 
 	bHit = true;
@@ -63,6 +64,7 @@ void ALKProjectile::Destroyed()
 		if (LoopingSoundComponent)
 		{
 			LoopingSoundComponent->Stop();
+			LoopingSoundComponent->DestroyComponent();
 		}
 	}
 

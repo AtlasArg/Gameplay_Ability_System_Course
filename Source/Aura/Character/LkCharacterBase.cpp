@@ -152,6 +152,11 @@ FOnASCRegistered ALkCharacterBase::GetOnASCRegisteredDelegate()
 	return OnAscRegistered;
 }
 
+USkeletalMeshComponent* ALkCharacterBase::GetWeapon_Implementation()
+{
+	return Weapon;
+}
+
 void ALkCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	Weapon->SetSimulatePhysics(true);

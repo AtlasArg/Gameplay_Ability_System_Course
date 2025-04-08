@@ -51,6 +51,26 @@ void ULKAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySyste
 	OnEffectAssetTags.Broadcast(TagContainer);
 }
 
+void ULKAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid())
+	{
+		return;
+	}
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+			if (AbilitySpec.IsActive())
+			{
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+			}
+		}
+	}
+}
+
 void ULKAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if (InputTag.IsValid())
@@ -77,9 +97,10 @@ void ULKAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
 		TArray<FGameplayAbilitySpec> Abilities = GetActivatableAbilities();
 		for (auto& AbilitySpec : Abilities)
 		{
-			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+			if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
 			{
 				AbilitySpecInputReleased(AbilitySpec);
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 			}
 		}
 	}
