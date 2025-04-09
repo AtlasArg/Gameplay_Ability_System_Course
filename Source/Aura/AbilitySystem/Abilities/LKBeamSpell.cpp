@@ -58,6 +58,14 @@ void ULKBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
             }
         }
     }
+
+    if (ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(MouseHitActor))
+    {
+        if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &ThisClass::PrimaryTargetDied))
+        {
+            CombatInterface->GetOnDeathDelegate().AddDynamic(this, &ThisClass::PrimaryTargetDied);
+        }
+    }
 }
 
 void ULKBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
@@ -74,8 +82,22 @@ void ULKBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
         850.f,
         MouseHitActor->GetActorLocation());
 
-    //int32 NumAdditionalTargets = FMath::Min(GetAbilityLevel() - 1, MaxNumShockTargets);
-    int32 NumAdditionTargets = 5;
+    int32 NumAdditionalTargets = FMath::Min(GetAbilityLevel() - 1, MaxNumShockTargets);
 
-    ULKAbilitySystemLibrary::GetClosestTargets(NumAdditionTargets, OverlappingActors, OutAdditionalTargets, MouseHitActor->GetActorLocation());
+    ULKAbilitySystemLibrary::GetClosestTargets(
+        NumAdditionalTargets,
+        OverlappingActors,
+        OutAdditionalTargets,
+        MouseHitActor->GetActorLocation());
+
+    for (AActor* Target : OutAdditionalTargets)
+    {
+        if (ILKCombatInterface* CombatInterface = Cast<ILKCombatInterface>(Target))
+        {
+            if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &ULKBeamSpell::AdditionalTargetDied))
+            {
+                CombatInterface->GetOnDeathDelegate().AddDynamic(this, &ULKBeamSpell::AdditionalTargetDied);
+            }
+        }
+    }
 }

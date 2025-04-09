@@ -127,6 +127,11 @@ void ALkCharacterBase::Die(const FVector& DeathImpulse)
 	MulticastHandleDeath(DeathImpulse);
 }
 
+FOnDeathSignature& ALkCharacterBase::GetOnDeathDelegate()
+{
+	return OnDeathDelegate;
+}
+
 bool ALkCharacterBase::IsDead_Implementation() const
 {
 	return bDead;
@@ -175,4 +180,5 @@ void ALkCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	Dissolve();
 	bDead = true;
 	BurnDebuffComponent->Deactivate();
+	OnDeathDelegate.Broadcast(this);
 }
