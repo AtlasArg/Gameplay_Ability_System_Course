@@ -8,6 +8,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Aura/LKGameplayTags.h"
 #include "Aura/Aura.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 ALkCharacterBase::ALkCharacterBase()
@@ -18,6 +20,10 @@ ALkCharacterBase::ALkCharacterBase()
 	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = GameplayTags.Debuff_Burn;
+
+	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("StunDebuffComponent");
+	StunDebuffComponent->SetupAttachment(GetRootComponent());
+	StunDebuffComponent->DebuffTag = GameplayTags.Debuff_Stun;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -30,6 +36,23 @@ ALkCharacterBase::ALkCharacterBase()
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	//TODO: Check, not sure about this...
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ALkCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ALkCharacterBase, bIsStunned);
+	DOREPLIFETIME(ALkCharacterBase, bIsBurned);
+	DOREPLIFETIME(ALkCharacterBase, bIsBeingShocked);
+}
+
+void ALkCharacterBase::OnRep_Stunned()
+{
+}
+
+void ALkCharacterBase::OnRep_Burned()
+{
 }
 
 void ALkCharacterBase::BeginPlay()
@@ -53,6 +76,12 @@ FVector ALkCharacterBase::GetCombatSocketLocation_Implementation(const FGameplay
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
 	return FVector();
+}
+
+void ALkCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsStunned = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
 }
 
 void ALkCharacterBase::InitAbilityActorInfo()
@@ -152,7 +181,7 @@ ECharacterClass ALkCharacterBase::GetCharacterClass_Implementation()
 	return CharacterClass;
 }
 
-FOnASCRegistered ALkCharacterBase::GetOnASCRegisteredDelegate()
+FOnASCRegistered& ALkCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnAscRegistered;
 }
@@ -160,6 +189,16 @@ FOnASCRegistered ALkCharacterBase::GetOnASCRegisteredDelegate()
 USkeletalMeshComponent* ALkCharacterBase::GetWeapon_Implementation()
 {
 	return Weapon;
+}
+
+void ALkCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
+{
+	bIsBeingShocked = bInShock;
+}
+
+bool ALkCharacterBase::IsBeingShocked_Implementation() const
+{
+	return bIsBeingShocked;
 }
 
 void ALkCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)

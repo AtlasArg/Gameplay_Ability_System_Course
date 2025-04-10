@@ -34,6 +34,8 @@ ALkBaseEnemy::ALkBaseEnemy()
 	AttributeSet = CreateDefaultSubobject<ULKAttributeSet>("AttributeSet");
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+
+	BaseWalkSpeed = 250.f;
 }
 
 void ALkBaseEnemy::PossessedBy(AController* NewController)
@@ -149,6 +151,7 @@ void ALkBaseEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<ULKAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	AbilitySystemComponent->RegisterGameplayTagEvent(FLKGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ALkBaseEnemy::StunTagChanged);
 
 	if (HasAuthority())
 	{
@@ -161,5 +164,15 @@ void ALkBaseEnemy::InitAbilityActorInfo()
 void ALkBaseEnemy::InitializeDefaultAttributes() const
 {
 	ULKAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void ALkBaseEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::StunTagChanged(CallbackTag, NewCount);
+
+	if (LKSAIController && LKSAIController->GetBlackboardComponent())
+	{
+		LKSAIController->GetBlackboardComponent()->SetValueAsBool(FName("Stunned"), bIsStunned);
+	}
 }
 

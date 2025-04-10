@@ -7,11 +7,13 @@
 #include "Aura/AbilitySystem/LKAttributeSet.h"
 #include "Aura/Player/LKPlayerState.h"
 #include "NiagaraComponent.h"
+#include "Aura/AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Aura/Player/LKPlayerController.h"
 #include "Aura/UI/HUD/LKHUD.h"
 #include "Aura/AbilitySystem/Data/LevelUpInfo.h"
+#include "Aura/LKGameplayTags.h"
 
 ALkPlayerCharacter::ALkPlayerCharacter()
 {
@@ -144,6 +146,41 @@ int32 ALkPlayerCharacter::GetPlayerLevel_Implementation()
 	return LKPlayerState->GetPlayerLevel();
 }
 
+void ALkPlayerCharacter::OnRep_Stunned()
+{
+	if (ULKAbilitySystemComponent* LKASC = Cast<ULKAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		const FLKGameplayTags& GameplayTags = FLKGameplayTags::Get();
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputReleased);
+		if (bIsStunned)
+		{
+			LKASC->AddLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Activate();
+		}
+		else
+		{
+			LKASC->RemoveLooseGameplayTags(BlockedTags);
+			StunDebuffComponent->Deactivate();
+		}
+	}
+}
+
+void ALkPlayerCharacter::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		BurnDebuffComponent->Deactivate();
+	}
+}
+
 void ALkPlayerCharacter::InitAbilityActorInfo()
 {
 	ALKPlayerState* LKPlayerState = GetPlayerState<ALKPlayerState>();
@@ -154,6 +191,7 @@ void ALkPlayerCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = LKPlayerState->GetAbilitySystemComponent();
 	AttributeSet = LKPlayerState->GetAttributeSet();
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
+	AbilitySystemComponent->RegisterGameplayTagEvent(FLKGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::StunTagChanged);
 
 	ALKPlayerController* LKPlayerController = Cast<ALKPlayerController>(GetController());
 	if (LKPlayerController != nullptr)
